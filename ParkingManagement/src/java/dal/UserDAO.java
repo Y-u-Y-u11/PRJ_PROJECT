@@ -1,34 +1,34 @@
 package dal;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import models.Users;
+import models.User;
 
 /**
- * Data Access Object for Users.
+ * Data Access Object for User.
  */
 public class UserDAO extends DBContext {
-    private PreparedStatement stm; // For executing queries
-    private ResultSet rs;          // For holding results
+
+    private PreparedStatement stm;
+    private ResultSet rs;
 
     /**
      * Authenticates a user.
+     *
      * @param username The username
      * @param password The password
-     * @return Users object if successful, null otherwise
+     * @return User object if successful, null otherwise
      */
-    public Users login(String username, String password) {
-        String sql = "SELECT * FROM Users WHERE username = ? AND password = ?";
+    public User login(String username, String password) {
+        String sql = "select * from Users where username = ? and password = ?";
         try {
             stm = connection.prepareStatement(sql);
             stm.setString(1, username);
             stm.setString(2, password);
             rs = stm.executeQuery();
             if (rs.next()) {
-                Users user = new Users();
+                User user = new User();
                 user.setUserID(rs.getInt("userID"));
                 user.setFullName(rs.getString("fullName"));
                 user.setUsername(rs.getString("username"));
@@ -40,22 +40,23 @@ public class UserDAO extends DBContext {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        } 
+        }
         return null;
     }
 
     /**
      * Retrieves all staff users.
-     * @return List of Users
+     *
+     * @return List of User
      */
-    public List<Users> getAllStaff() {
-        List<Users> list = new ArrayList<>();
-        String sql = "SELECT * FROM Users WHERE role = 'staff'";
+    public List<User> getAllStaff() {
+        List<User> list = new ArrayList<>();
+        String sql = "select * from Users where role = 'staff'";
         try {
             stm = connection.prepareStatement(sql);
             rs = stm.executeQuery();
             while (rs.next()) {
-                Users staff = new Users();
+                User staff = new User();
                 staff.setUserID(rs.getInt("userID"));
                 staff.setFullName(rs.getString("fullName"));
                 staff.setUsername(rs.getString("username"));
@@ -67,7 +68,84 @@ public class UserDAO extends DBContext {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        } 
+        }
         return list;
+    }
+
+    public void createUser(User user) {
+        String sql = "insert into Users (fullName, username, password, role, phone, status) values (?, ?, ?, ?, ?, ?)";
+        try {
+            stm = connection.prepareStatement(sql);
+            stm.setString(1, user.getFullName());
+            stm.setString(2, user.getUsername());
+            stm.setString(3, user.getPassword());
+            stm.setString(4, user.getRole());
+            stm.setString(5, user.getPhone());
+            stm.setBoolean(6, user.isStatus());
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+
+    public List<User> readUsers() {
+        List<User> result = new ArrayList<>();
+        String sql = "select * from Users";
+        try {
+            stm = connection.prepareStatement(sql);
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                User user = new User();
+                user.setUserID(rs.getInt("userID"));
+                user.setFullName(rs.getString("fullName"));
+                user.setUsername(rs.getString("username"));
+                user.setPassword(rs.getString("password"));
+                user.setRole(rs.getString("role"));
+                user.setPhone(rs.getString("phone"));
+                user.setStatus(rs.getBoolean("status"));
+                result.add(user);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return result;
+    }
+
+    public void updateUser(User user) {
+        String sql = """
+                     update Users 
+                     set 
+                        fullName = ?, 
+                        username = ?, 
+                        password = ?, 
+                        role = ?, 
+                        phone = ?, 
+                        status = ? 
+                        where userID = ?
+                     """;
+        try {
+            stm = connection.prepareStatement(sql);
+            stm.setString(1, user.getFullName());
+            stm.setString(2, user.getUsername());
+            stm.setString(3, user.getPassword());
+            stm.setString(4, user.getRole());
+            stm.setString(5, user.getPhone());
+            stm.setBoolean(6, user.isStatus());
+            stm.setInt(7, user.getUserID());
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+
+    public void deleteUsers(int id) {
+        String sql = "delete from Users where userID = ?";
+        try {
+            stm = connection.prepareStatement(sql);
+            stm.setInt(1, id);
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
     }
 }

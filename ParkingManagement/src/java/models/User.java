@@ -1,7 +1,7 @@
 package models;
 
 /**
- * Model class representing a User.
+ * Represents the User entity.
  */
 public class User {
 
@@ -13,15 +13,9 @@ public class User {
     private String phone;
     private boolean status;
 
-    /**
-     * No-args constructor
-     */
     public User() {
     }
 
-    /**
-     * All-args constructor
-     */
     public User(int userID, String fullName, String username, String password, String role, String phone, boolean status) {
         this.userID = userID;
         this.fullName = fullName;
@@ -80,10 +74,6 @@ public class User {
         this.phone = phone;
     }
 
-    public boolean getStatus() {
-        return status;
-    }
-
     public boolean isStatus() {
         return status;
     }
@@ -94,13 +84,14 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{"
+        return "Users{"
                 + "userID=" + userID + ", "
                 + "fullName=" + fullName + ", "
                 + "username=" + username + ", "
                 + "password=" + password + ", "
                 + "role=" + role + ", "
                 + "phone=" + phone + ", "
-                + "status=" + status + "}";
+                + "status=" + status
+                + "}";
     }
 }
