@@ -8,9 +8,9 @@ import java.sql.*;
  * Data Access Object for VehicleType.
  */
 public class VehicleTypeDAO extends DBContext {
+
     private PreparedStatement stm;
     private ResultSet rs;
-
 
     public void createVehicleType(VehicleType o) {
         String sql = "insert into VehicleType (typeName, basePrice) values (?, ?)";

@@ -8,9 +8,9 @@ import java.sql.*;
  * Data Access Object for VehicleHistory.
  */
 public class VehicleHistoryDAO extends DBContext {
+
     private PreparedStatement stm;
     private ResultSet rs;
-
 
     public void createVehicleHistory(VehicleHistory o) {
         String sql = "insert into VehicleHistory (vehicleID, ticketID, slotID, checkInTime, checkOutTime) values (?, ?, ?, ?, ?)";
