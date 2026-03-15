@@ -1,0 +1,14 @@
+package dal;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.*;
+
+/**
+ * Data Access Object for MonthlyCard.
+ */
+public class MonthlyCardDAO extends DBContext {
+    private PreparedStatement stm;
+    private ResultSet rs;
+
+}
