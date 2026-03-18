@@ -4,21 +4,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import models.PriceRule;
 
-/**
- * Data Access Object for PriceRule.
- */
 public class PriceRuleDAO extends DBContext {
 
     private PreparedStatement stm;
     private ResultSet rs;
 
-    /**
-     * Gets the appropriate price based on vehicle type and duration.
-     *
-     * @param vehicleTypeID The ID of the vehicle type
-     * @param hour The number of hours parked
-     * @return The price per interval according to rule
-     */
     public double getPrice(int vehicleTypeID, int hour) {
         double price = 0;
         String sql = "SELECT price FROM PriceRule WHERE typeID = ? AND ? BETWEEN startHour AND endHour";
@@ -40,13 +30,14 @@ public class PriceRuleDAO extends DBContext {
         String sql = "insert into PriceRule (typeID, startHour, endHour, price) values (?, ?, ?, ?)";
         try {
             stm = connection.prepareStatement(sql);
-            stm.setString(1, o.getTypeID());
-            stm.setString(2, o.getStartHour());
-            stm.setString(3, o.getEndHour());
+            // Chuyển đổi String từ Controller sang int để khớp với Database
+            stm.setInt(1, Integer.parseInt(o.getTypeID()));
+            stm.setInt(2, Integer.parseInt(o.getStartHour()));
+            stm.setInt(3, Integer.parseInt(o.getEndHour()));
             stm.setDouble(4, o.getPrice());
             stm.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e);
+        } catch (SQLException | NumberFormatException e) {
+            System.out.println("Lỗi createPriceRule: " + e);
         }
     }
 
@@ -59,14 +50,14 @@ public class PriceRuleDAO extends DBContext {
             while (rs.next()) {
                 PriceRule o = new PriceRule();
                 o.setRuleID(rs.getInt("ruleID"));
-                o.setTypeID(rs.getString("typeID"));
-                o.setStartHour(rs.getString("startHour"));
+                o.setTypeID(rs.getString("typeID")); // Vẫn set String cho Object
+                o.setStartHour(rs.getString("startHour")); 
                 o.setEndHour(rs.getString("endHour"));
                 o.setPrice(rs.getDouble("price"));
                 result.add(o);
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            System.out.println("Lỗi readPriceRules: " + e);
         }
         return result;
     }
@@ -75,14 +66,15 @@ public class PriceRuleDAO extends DBContext {
         String sql = "update PriceRule set typeID = ?, startHour = ?, endHour = ?, price = ? where ruleID = ?";
         try {
             stm = connection.prepareStatement(sql);
-            stm.setString(1, o.getTypeID());
-            stm.setString(2, o.getStartHour());
-            stm.setString(3, o.getEndHour());
+            // Chuyển đổi String từ Controller sang int để khớp với Database
+            stm.setInt(1, Integer.parseInt(o.getTypeID()));
+            stm.setInt(2, Integer.parseInt(o.getStartHour()));
+            stm.setInt(3, Integer.parseInt(o.getEndHour()));
             stm.setDouble(4, o.getPrice());
             stm.setInt(5, o.getRuleID());
             stm.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e);
+        } catch (SQLException | NumberFormatException e) {
+            System.out.println("Lỗi updatePriceRule: " + e);
         }
     }
 
@@ -93,7 +85,7 @@ public class PriceRuleDAO extends DBContext {
             stm.setInt(1, id);
             stm.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e);
+            System.out.println("Lỗi deletePriceRule: " + e);
         }
     }
 }

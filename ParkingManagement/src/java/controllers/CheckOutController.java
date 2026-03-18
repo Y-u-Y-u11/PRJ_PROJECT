@@ -25,8 +25,8 @@ public class CheckOutController extends HttpServlet {
             return;
         }
         
-        // Load the checkout page
-        request.getRequestDispatcher("/views/staff/check-out.jsp").forward(request, response);
+        // UI đã được chuyển lên Dashboard, không còn trang check-out.jsp rời
+        response.sendRedirect(request.getContextPath() + "/staff/dashboard");
     }
 
     @Override
@@ -45,21 +45,21 @@ public class CheckOutController extends HttpServlet {
             
             // Handle edge case: Lost ticket
             if (ticketIdParam == null || ticketIdParam.isEmpty()) {
-                request.setAttribute("error", "Ticket number is required. Please follow 'Lost Ticket' procedure.");
-                request.getRequestDispatcher("/views/staff/check-out.jsp").forward(request, response);
+                request.setAttribute("error", "Bắt buộc phải có mã vé. Vui lòng thực hiện quy trình 'Lost Ticket'.");
+                request.getRequestDispatcher("/views/error.jsp").forward(request, response);
                 return;
             }
             
             int ticketID = Integer.parseInt(ticketIdParam);
             
             ParkingTicketDAO ticketDao = new ParkingTicketDAO();
-            ticketDao.checkOut(ticketID); // This calculates total fee, overtime charges internally in DAO
+            ticketDao.checkOut(ticketID); // DAO sẽ tự tính tiền và giải phóng chỗ trống
             
-            // PRG pattern
-            response.sendRedirect(request.getContextPath() + "views/staff/check-out?success=true");
+            // PRG pattern - Trở về trang Dashboard với thông báo thành công
+            response.sendRedirect(request.getContextPath() + "/staff/dashboard?success=checkout");
             
         } catch (Exception e) {
-            request.setAttribute("error", "Failed checkout process: " + e.getMessage());
+            request.setAttribute("error", "Lỗi xử lý check-out: " + e.getMessage());
             request.getRequestDispatcher("/views/error.jsp").forward(request, response);
         }
     }

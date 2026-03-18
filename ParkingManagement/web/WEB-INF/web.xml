@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+<web-app version="3.1"
+         xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
+                             http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+
     <display-name>ParkingManagementSystem</display-name>
+
+    <!-- ========== AUTH ========== -->
     <servlet>
         <servlet-name>LoginController</servlet-name>
         <servlet-class>controllers.LoginController</servlet-class>
@@ -9,6 +16,7 @@
         <servlet-name>LoginController</servlet-name>
         <url-pattern>/login</url-pattern>
     </servlet-mapping>
+
     <servlet>
         <servlet-name>LogoutController</servlet-name>
         <servlet-class>controllers.LogoutController</servlet-class>
@@ -17,6 +25,27 @@
         <servlet-name>LogoutController</servlet-name>
         <url-pattern>/logout</url-pattern>
     </servlet-mapping>
+
+    <!-- ========== DASHBOARD ========== -->
+    <servlet>
+        <servlet-name>DashboardStaffController</servlet-name>
+        <servlet-class>controllers.DashboardStaffController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DashboardStaffController</servlet-name>
+        <url-pattern>/staff/dashboard</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DashboardAdminController</servlet-name>
+        <servlet-class>controllers.DashboardAdminController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DashboardAdminController</servlet-name>
+        <url-pattern>/admin/dashboard</url-pattern>
+    </servlet-mapping>
+
+    <!-- ========== ADMIN ========== -->
     <servlet>
         <servlet-name>StaffManagementController</servlet-name>
         <servlet-class>controllers.StaffManagementController</servlet-class>
@@ -25,30 +54,7 @@
         <servlet-name>StaffManagementController</servlet-name>
         <url-pattern>/admin/staffManagement</url-pattern>
     </servlet-mapping>
-    <servlet>
-        <servlet-name>CheckInController</servlet-name>
-        <servlet-class>controllers.CheckInController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>CheckInController</servlet-name>
-        <url-pattern>/staff/check-in</url-pattern>
-    </servlet-mapping>
-    <servlet>
-        <servlet-name>CheckOutController</servlet-name>
-        <servlet-class>controllers.CheckOutController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>CheckOutController</servlet-name>
-        <url-pattern>/staff/check-out</url-pattern>
-    </servlet-mapping>
-    <servlet>
-        <servlet-name>ParkingSlotController</servlet-name>
-        <servlet-class>controllers.ParkingSlotController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ParkingSlotController</servlet-name>
-        <url-pattern>/staff/parking-slots</url-pattern>
-    </servlet-mapping>
+
     <servlet>
         <servlet-name>PricingController</servlet-name>
         <servlet-class>controllers.PricingController</servlet-class>
@@ -57,14 +63,7 @@
         <servlet-name>PricingController</servlet-name>
         <url-pattern>/admin/pricing</url-pattern>
     </servlet-mapping>
-    <servlet>
-        <servlet-name>SubscriptionController</servlet-name>
-        <servlet-class>controllers.SubscriptionController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>SubscriptionController</servlet-name>
-        <url-pattern>/staff/subscriptions</url-pattern>
-    </servlet-mapping>
+
     <servlet>
         <servlet-name>ReportController</servlet-name>
         <servlet-class>controllers.ReportController</servlet-class>
@@ -73,7 +72,47 @@
         <servlet-name>ReportController</servlet-name>
         <url-pattern>/admin/reports</url-pattern>
     </servlet-mapping>
+
+    <!-- ========== STAFF ========== -->
+    <servlet>
+        <servlet-name>CheckInController</servlet-name>
+        <servlet-class>controllers.CheckInController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CheckInController</servlet-name>
+        <url-pattern>/staff/check-in</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CheckOutController</servlet-name>
+        <servlet-class>controllers.CheckOutController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CheckOutController</servlet-name>
+        <url-pattern>/staff/check-out</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ParkingSlotController</servlet-name>
+        <servlet-class>controllers.ParkingSlotController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ParkingSlotController</servlet-name>
+        <url-pattern>/staff/parking-slots</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SubscriptionController</servlet-name>
+        <servlet-class>controllers.SubscriptionController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SubscriptionController</servlet-name>
+        <url-pattern>/staff/subscriptions</url-pattern>
+    </servlet-mapping>
+
+    <!-- ========== DEFAULT ========== -->
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
+
 </web-app>

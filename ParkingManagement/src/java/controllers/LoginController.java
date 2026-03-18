@@ -36,9 +36,9 @@ public class LoginController extends HttpServlet {
 
                 // Redirect based on role
                 if ("admin".equalsIgnoreCase(account.getRole())) {
-                    response.sendRedirect(request.getContextPath() + "/views/admin/dashboard.jsp");
+                    response.sendRedirect(request.getContextPath() + "/admin/dashboard");
                 } else {
-                    response.sendRedirect(request.getContextPath() + "/views/staff/dashboard.jsp");
+                    response.sendRedirect(request.getContextPath() + "/staff/dashboard");
                 }
             } else {
                 request.setAttribute("error", "Invalid username or password");

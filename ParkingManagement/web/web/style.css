@@ -1,0 +1,116 @@
+/* Biến màu Xanh Navy */
+:root {
+    --navy-dark: #0a192f;
+    --navy-light: #112240;
+    --navy-primary: #1e3a8a;
+    --navy-hover: #2563eb;
+    --text-light: #e6f1ff;
+    --bg-body: #f8fafc;
+}
+
+body {
+    background-color: var(--bg-body);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    background-color: var(--navy-dark);
+    color: var(--text-light);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+.sidebar .nav-link {
+    color: #8892b0;
+    padding: 12px 20px;
+    border-radius: 6px;
+    margin-bottom: 5px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.sidebar .nav-link:hover, .sidebar .nav-link.active {
+    background-color: var(--navy-light);
+    color: var(--text-light);
+    border-left: 4px solid var(--navy-primary);
+}
+
+/* Navbar Styling */
+.top-navbar {
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+
+/* Buttons */
+.btn-navy {
+    background-color: var(--navy-primary);
+    color: white;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.btn-navy:hover {
+    background-color: var(--navy-hover);
+    color: white;
+}
+
+.container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.btn-add {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+/* Table Styles */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.data-table th, .data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+.data-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #333;
+}
+.data-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Action Links */
+.action-links a {
+    margin-right: 10px;
+    color: #007BFF;
+    text-decoration: none;
+}
+.action-links a.delete {
+    color: #dc3545;
+}
+
+.sidebar .nav-link.active{
+    background: #1e3a8a;
+    color: white !important;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.sidebar .nav-link.active i{
+    color: white;
+}

@@ -13,13 +13,6 @@ public class UserDAO extends DBContext {
     private PreparedStatement stm;
     private ResultSet rs;
 
-    /**
-     * Authenticates a user.
-     *
-     * @param username The username
-     * @param password The password
-     * @return User object if successful, null otherwise
-     */
     public User login(String username, String password) {
         String sql = "select * from Users where username = ? and password = ?";
         try {
@@ -44,11 +37,6 @@ public class UserDAO extends DBContext {
         return null;
     }
 
-    /**
-     * Retrieves all staff users.
-     *
-     * @return List of User
-     */
     public List<User> getAllStaff() {
         List<User> list = new ArrayList<>();
         String sql = "select * from Users where role = 'staff'";
@@ -70,6 +58,58 @@ public class UserDAO extends DBContext {
             e.printStackTrace();
         }
         return list;
+    }
+
+    // TÍNH NĂNG MỚI: Tìm kiếm nhân viên
+    public List<User> searchStaff(String keyword) {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE role = 'staff' AND (fullName LIKE ? OR username LIKE ? OR phone LIKE ?)";
+        try {
+            stm = connection.prepareStatement(sql);
+            String searchPattern = "%" + keyword + "%";
+            stm.setString(1, searchPattern);
+            stm.setString(2, searchPattern);
+            stm.setString(3, searchPattern);
+            rs = stm.executeQuery();
+            while (rs.next()) {
+                User staff = new User();
+                staff.setUserID(rs.getInt("userID"));
+                staff.setFullName(rs.getString("fullName"));
+                staff.setUsername(rs.getString("username"));
+                staff.setPassword(rs.getString("password"));
+                staff.setRole(rs.getString("role"));
+                staff.setPhone(rs.getString("phone"));
+                staff.setStatus(rs.getBoolean("status"));
+                list.add(staff);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // TÍNH NĂNG MỚI: Lấy thông tin 1 user (dùng cho update để giữ lại password cũ)
+    public User getUserById(int id) {
+        String sql = "select * from Users where userID = ?";
+        try {
+            stm = connection.prepareStatement(sql);
+            stm.setInt(1, id);
+            rs = stm.executeQuery();
+            if (rs.next()) {
+                User user = new User();
+                user.setUserID(rs.getInt("userID"));
+                user.setFullName(rs.getString("fullName"));
+                user.setUsername(rs.getString("username"));
+                user.setPassword(rs.getString("password"));
+                user.setRole(rs.getString("role"));
+                user.setPhone(rs.getString("phone"));
+                user.setStatus(rs.getBoolean("status"));
+                return user;
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return null;
     }
 
     public void createUser(User user) {
