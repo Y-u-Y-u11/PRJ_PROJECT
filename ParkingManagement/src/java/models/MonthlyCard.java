@@ -12,16 +12,36 @@ public class MonthlyCard {
     private String endDate;
     private String status;
 
+    // Thuộc tính bổ sung để hiển thị
+    private String customerName;
+    private String plateNumber;
+
     public MonthlyCard() {
     }
 
-    public MonthlyCard(int cardID, String customerID, String vehicleID, String startDate, String endDate, String status) {
+    // Constructor đầy đủ (cũ)
+    public MonthlyCard(int cardID, String customerID, String vehicleID,
+                       String startDate, String endDate, String status) {
         this.cardID = cardID;
         this.customerID = customerID;
         this.vehicleID = vehicleID;
         this.startDate = startDate;
         this.endDate = endDate;
         this.status = status;
+    }
+
+    // Constructor mở rộng (có thêm 2 field mới)
+    public MonthlyCard(int cardID, String customerID, String vehicleID,
+                       String startDate, String endDate, String status,
+                       String customerName, String plateNumber) {
+        this.cardID = cardID;
+        this.customerID = customerID;
+        this.vehicleID = vehicleID;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.status = status;
+        this.customerName = customerName;
+        this.plateNumber = plateNumber;
     }
 
     public int getCardID() {
@@ -72,15 +92,33 @@ public class MonthlyCard {
         this.status = status;
     }
 
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getPlateNumber() {
+        return plateNumber;
+    }
+
+    public void setPlateNumber(String plateNumber) {
+        this.plateNumber = plateNumber;
+    }
+
     @Override
     public String toString() {
         return "MonthlyCard{"
                 + "cardID=" + cardID + ", "
-                + "customerID=" + customerID + ", "
-                + "vehicleID=" + vehicleID + ", "
-                + "startDate=" + startDate + ", "
-                + "endDate=" + endDate + ", "
-                + "status=" + status
+                + "customerID='" + customerID + "', "
+                + "vehicleID='" + vehicleID + "', "
+                + "startDate='" + startDate + "', "
+                + "endDate='" + endDate + "', "
+                + "status='" + status + "', "
+                + "customerName='" + customerName + "', "
+                + "plateNumber='" + plateNumber + "'"
                 + "}";
     }
 }
