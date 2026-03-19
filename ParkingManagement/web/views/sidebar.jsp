@@ -57,6 +57,14 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a href="${pageContext.request.contextPath}/admin/violations"
+                       class="nav-link ${currentPage.contains('violations') ? 'active' : ''}">
+                        <i class="fa-solid fa-clipboard-check me-2"></i>
+                        Quản lý vi phạm
+                    </a>
+                </li>
+
             </c:if>
 
 

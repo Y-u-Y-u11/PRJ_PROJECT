@@ -7,7 +7,7 @@
 
     <display-name>ParkingManagementSystem</display-name>
 
-    <!-- ========== AUTH ========== -->
+
     <servlet>
         <servlet-name>LoginController</servlet-name>
         <servlet-class>controllers.LoginController</servlet-class>
@@ -26,7 +26,7 @@
         <url-pattern>/logout</url-pattern>
     </servlet-mapping>
 
-    <!-- ========== DASHBOARD ========== -->
+
     <servlet>
         <servlet-name>DashboardStaffController</servlet-name>
         <servlet-class>controllers.DashboardStaffController</servlet-class>
@@ -45,7 +45,6 @@
         <url-pattern>/admin/dashboard</url-pattern>
     </servlet-mapping>
 
-    <!-- ========== ADMIN ========== -->
     <servlet>
         <servlet-name>StaffManagementController</servlet-name>
         <servlet-class>controllers.StaffManagementController</servlet-class>
@@ -53,6 +52,24 @@
     <servlet-mapping>
         <servlet-name>StaffManagementController</servlet-name>
         <url-pattern>/admin/staffManagement</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>StaffEditController</servlet-name>
+        <servlet-class>controllers.StaffEditController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>StaffEditController</servlet-name>
+        <url-pattern>/admin/staffManagement/edit</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>StaffDeleteController</servlet-name>
+        <servlet-class>controllers.StaffDeleteController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>StaffDeleteController</servlet-name>
+        <url-pattern>/admin/staffManagement/delete</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -65,6 +82,24 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>PricingEditController</servlet-name>
+        <servlet-class>controllers.PricingEditController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PricingEditController</servlet-name>
+        <url-pattern>/admin/pricing/edit</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>PricingDeleteController</servlet-name>
+        <servlet-class>controllers.PricingDeleteController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PricingDeleteController</servlet-name>
+        <url-pattern>/admin/pricing/delete</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>ReportController</servlet-name>
         <servlet-class>controllers.ReportController</servlet-class>
     </servlet>
@@ -73,7 +108,6 @@
         <url-pattern>/admin/reports</url-pattern>
     </servlet-mapping>
 
-    <!-- ========== STAFF ========== -->
     <servlet>
         <servlet-name>CheckInController</servlet-name>
         <servlet-class>controllers.CheckInController</servlet-class>
@@ -110,7 +144,69 @@
         <url-pattern>/staff/subscriptions</url-pattern>
     </servlet-mapping>
 
-    <!-- ========== DEFAULT ========== -->
+    <servlet>
+        <servlet-name>TicketController</servlet-name>
+        <servlet-class>controllers.TicketController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TicketController</servlet-name>
+        <url-pattern>/staff/ticket</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ViolationDeleteController</servlet-name>
+        <servlet-class>controllers.ViolationDeleteController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ViolationDeleteController</servlet-name>
+        <url-pattern>/admin/violations/delete</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>StaffAddController</servlet-name>
+        <servlet-class>controllers.StaffAddController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>StaffAddController</servlet-name>
+        <url-pattern>/admin/staffManagement/add</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ViolationController</servlet-name>
+        <servlet-class>controllers.ViolationController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ViolationController</servlet-name>
+        <url-pattern>/admin/violations</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>PricingAddController</servlet-name>
+        <servlet-class>controllers.PricingAddController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PricingAddController</servlet-name>
+        <url-pattern>/admin/pricing/add</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ViolationAddController</servlet-name>
+        <servlet-class>controllers.ViolationAddController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ViolationAddController</servlet-name>
+        <url-pattern>/admin/violations/add</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ViolationEditController</servlet-name>
+        <servlet-class>controllers.ViolationEditController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ViolationEditController</servlet-name>
+        <url-pattern>/admin/violations/edit</url-pattern>
+    </servlet-mapping>
+
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>

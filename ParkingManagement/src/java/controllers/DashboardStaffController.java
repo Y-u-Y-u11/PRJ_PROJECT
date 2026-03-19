@@ -33,7 +33,7 @@ public class DashboardStaffController extends HttpServlet {
             ParkingZoneDAO zoneDao = new ParkingZoneDAO();
             List<ParkingZone> zones = zoneDao.readParkingZones();
             request.setAttribute("zones", zones);
-            // Lấy dữ liệu thật từ DB
+            // Get real data from DB
             ParkingSlotDAO slotDao = new ParkingSlotDAO();
             List<ParkingSlot> slots = slotDao.readParkingSlots();
 

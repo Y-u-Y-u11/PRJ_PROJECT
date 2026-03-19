@@ -2,7 +2,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -10,19 +9,22 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Bảng Điều Khiển - Parking Management</title>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/web/style.css">
+        <style>
+            .hover-opacity-100:hover {
+                opacity: 1 !important;
+            }
+        </style>
     </head>
     <body>
-        <!-- Bao gồm Header -->
+        <!-- ================= Header + Sidebar ================= -->
         <jsp:include page="../header.jsp" />
-
-        <!-- Bao gồm Sidebar -->
         <jsp:include page="../sidebar.jsp" />
 
-        <!-- ================= NỘI DUNG CHÍNH ================= -->
+        <!-- ================= Main content ================= -->
+        <!-- Utility bars -->
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-4 border-bottom">
             <div>
                 <h1 class="h3 fw-bold text-dark mb-0">Bảng Điều Khiển Tổng Quan</h1>
-                <p class="text-muted small mt-1 mb-0">Theo dõi hoạt động bãi đỗ xe theo thời gian thực.</p>
             </div>
             <div class="btn-toolbar mb-2 mb-md-0 gap-2">
                 <a href="${pageContext.request.contextPath}/admin/pricing" class="btn btn-sm btn-outline-secondary shadow-sm">
@@ -31,15 +33,16 @@
                 <a href="${pageContext.request.contextPath}/admin/staffManagement" class="btn btn-sm btn-outline-secondary shadow-sm">
                     <i class="fas fa-user-plus me-1"></i> Nhân Sự
                 </a>
-                <button type="button" class="btn btn-sm btn-navy shadow-sm">
-                    <i class="fas fa-download me-1"></i> Xuất Báo Cáo Cuối Ngày
-                </button>
+                <form action="${pageContext.request.contextPath}/admin/dashboard" method="GET" style="display:inline;">
+                    <input type="hidden" name="action" value="export">
+                    <input type="submit" class="btn btn-sm btn-navy shadow-sm" value="Xuất Báo Cáo Cuối Ngày">
+                </form>
             </div>
         </div>
 
-        <!-- Các thẻ thống kê (Summary Cards) -->
+        <!-- Summary Cards -->
         <div class="row mb-4">
-            <!-- Doanh Thu -->
+            <!-- Income -->
             <div class="col-md-3">
                 <div class="card text-white bg-primary mb-3 shadow-sm border-0 h-100">
                     <div class="card-body">
@@ -81,7 +84,7 @@
                 </div>
             </div>
 
-            <!-- Sức Chứa (Hiển thị thanh tiến trình) -->
+            <!-- Capacity) -->
             <div class="col-md-3">
                 <div class="card text-white bg-warning mb-3 shadow-sm border-0 h-100">
                     <div class="card-body">
@@ -94,10 +97,10 @@
                                 <i class="fas fa-parking fa-lg text-dark opacity-75"></i>
                             </div>
                         </div>
-                        
+
                         <c:set var="occupied" value="${(totalSlots != null and totalSlots > 0) ? (totalSlots - emptySlots) : 0}" />
                         <c:set var="occupancyRate" value="${(totalSlots != null and totalSlots > 0) ? (occupied * 100.0 / totalSlots) : 0}" />
-                        
+
                         <div class="progress mt-2" style="height: 6px; background-color: rgba(0,0,0,0.1);">
                             <div class="progress-bar bg-dark" role="progressbar" style="width: ${occupancyRate}%;" aria-valuenow="${occupancyRate}" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
@@ -106,7 +109,7 @@
                 </div>
             </div>
 
-            <!-- Vi Phạm / Cảnh Báo -->
+            <!-- Violation / Alert -->
             <div class="col-md-3">
                 <div class="card text-white bg-danger mb-3 shadow-sm border-0 h-100">
                     <div class="card-body">
@@ -129,14 +132,17 @@
             </div>
         </div>
 
-        <!-- Chia Layout 2 cột cho Lịch sử và Thông báo -->
+        <!-- History / Notification -->
         <div class="row g-4">
-            <!-- Bảng hoạt động gần đây (Cột trái 8/12) -->
+            <!-- Recent activities -->
             <div class="col-lg-8">
                 <div class="card shadow-sm border-0 mb-4 h-100">
                     <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-history text-primary me-2"></i>Lịch Sử Xe Ra Vào Gần Đây</h5>
-                        <button class="btn btn-sm btn-light border" onclick="window.location.reload();"><i class="fas fa-sync-alt text-muted"></i></button>
+                        <form action="${pageContext.request.contextPath}/admin/dashboard" method="GET" style="display:inline;">
+                            <input type="hidden" name="action" value="refresh">
+                            <input type="submit" class="btn btn-sm btn-light border" value="↻">
+                        </form>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -236,7 +242,7 @@
                 </div>
             </div>
         </div>
-        <!-- ================= KẾT THÚC NỘI DUNG CHÍNH ================= -->
+        <!-- ================= Main content ================= -->
 
     </div> 
 </div> 
@@ -244,10 +250,5 @@
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<style>
-    .hover-opacity-100:hover {
-        opacity: 1 !important;
-    }
-</style>
 </body>
 </html>

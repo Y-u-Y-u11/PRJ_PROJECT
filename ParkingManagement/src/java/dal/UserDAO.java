@@ -60,7 +60,7 @@ public class UserDAO extends DBContext {
         return list;
     }
 
-    // TÍNH NĂNG MỚI: Tìm kiếm nhân viên
+    // NEW FEATURE: Search staff
     public List<User> searchStaff(String keyword) {
         List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM Users WHERE role = 'staff' AND (fullName LIKE ? OR username LIKE ? OR phone LIKE ?)";
@@ -88,7 +88,7 @@ public class UserDAO extends DBContext {
         return list;
     }
 
-    // TÍNH NĂNG MỚI: Lấy thông tin 1 user (dùng cho update để giữ lại password cũ)
+    // NEW FEATURE: Get 1 user info (used for update to keep old password)
     public User getUserById(int id) {
         String sql = "select * from Users where userID = ?";
         try {

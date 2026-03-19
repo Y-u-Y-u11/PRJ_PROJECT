@@ -9,6 +9,9 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Base database context class to establish JDBC connection.
+ */
 public class DBContext {
 
     protected Connection connection;

@@ -25,8 +25,9 @@ public class CheckOutController extends HttpServlet {
             return;
         }
         
-        // UI đã được chuyển lên Dashboard, không còn trang check-out.jsp rời
-        response.sendRedirect(request.getContextPath() + "/staff/dashboard");
+        String slotCode = request.getParameter("slotCode");
+        request.setAttribute("slotCode", slotCode);
+        request.getRequestDispatcher("/views/staff/checkout.jsp").forward(request, response);
     }
 
     @Override
@@ -53,9 +54,9 @@ public class CheckOutController extends HttpServlet {
             int ticketID = Integer.parseInt(ticketIdParam);
             
             ParkingTicketDAO ticketDao = new ParkingTicketDAO();
-            ticketDao.checkOut(ticketID); // DAO sẽ tự tính tiền và giải phóng chỗ trống
+            ticketDao.checkOut(ticketID); // DAO will automatically calculate the fee and free the slot
             
-            // PRG pattern - Trở về trang Dashboard với thông báo thành công
+            // PRG pattern - Return to Dashboard page with success message
             response.sendRedirect(request.getContextPath() + "/staff/dashboard?success=checkout");
             
         } catch (Exception e) {

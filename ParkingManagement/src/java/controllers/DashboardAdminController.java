@@ -15,13 +15,16 @@ import java.util.HashMap;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
+
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-@WebServlet(name = "DashboardAdminController", urlPatterns = {"/admin/dashboard"})
+/**
+ * Controller for the Admin Dashboard.
+ */
+
 public class DashboardAdminController extends HttpServlet {
 
     @Override
@@ -40,7 +43,7 @@ public class DashboardAdminController extends HttpServlet {
             ParkingTicketDAO ticketDao = new ParkingTicketDAO();
             ViolationDAO violationDao = new ViolationDAO();
             
-            // 1. LẤY DỮ LIỆU SỨC CHỨA (Từ ParkingSlotDAO)
+            // 1. GET CAPACITY DATA (From ParkingSlotDAO)
             List<ParkingSlot> slots = slotDao.readParkingSlots();
             int emptySlots = 0;
             for (ParkingSlot s : slots) {
@@ -48,27 +51,27 @@ public class DashboardAdminController extends HttpServlet {
             }
             int totalSlots = slots.size();
             
-            // 2. LẤY DỮ LIỆU DOANH THU VÀ LƯỢT XE HÔM NAY (Từ ParkingTicketDAO)
+            // 2. GET REVENUE AND VEHICLE COUNTS TODAY (From ParkingTicketDAO)
             List<ParkingTicket> tickets = ticketDao.readParkingTickets();
             double totalRevenue = 0;
             int todayCars = 0;
             LocalDate today = LocalDate.now();
             
-            // Sắp xếp danh sách vé: Vé mới nhất (CheckInTime gần nhất) lên đầu danh sách để làm Lịch sử
+            // Sort ticket list: Newest ticket (closest CheckInTime) to the top to act as History
             tickets.sort((t1, t2) -> {
                 if (t1.getCheckInTime() == null || t2.getCheckInTime() == null) return 0;
-                return t2.getCheckInTime().compareTo(t1.getCheckInTime()); // Giảm dần
+                return t2.getCheckInTime().compareTo(t1.getCheckInTime()); // Descending
             });
             
             for (ParkingTicket t : tickets) {
-                // Tính lượt xe ra/vào hôm nay
+                // Calculate vehicles in/out today
                 if (t.getCheckInTime() != null) {
                     LocalDate checkInDate = t.getCheckInTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                     if (checkInDate.equals(today)) {
                         todayCars++;
                     }
                 }
-                // Tính doanh thu thu được trong hôm nay (dựa vào checkOutTime và status Completed)
+                // Calculate revenue earned today (based on checkOutTime and Completed status)
                 if (t.getCheckOutTime() != null && "Completed".equalsIgnoreCase(t.getStatus())) {
                      LocalDate checkOutDate = t.getCheckOutTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                      if (checkOutDate.equals(today)) {
@@ -77,16 +80,16 @@ public class DashboardAdminController extends HttpServlet {
                 }
             }
             
-            // 3. LẤY DỮ LIỆU CẢNH BÁO / VI PHẠM (Từ ViolationDAO)
+            // 3. GET WARNING / VIOLATION DATA (From ViolationDAO)
             List<Violation> violations = violationDao.readViolations();
             
-            // 4. TẠO THÔNG BÁO HỆ THỐNG ĐỘNG (Dynamic Notifications)
+            // 4. CREATE DYNAMIC SYSTEM NOTIFICATIONS
             List<Map<String, String>> systemNotifications = new ArrayList<>();
             
-            // Cảnh báo chỗ đỗ
+            // Parking warning
             if (totalSlots > 0) {
                 double occupancyRate = (double) (totalSlots - emptySlots) / totalSlots;
-                if (occupancyRate >= 0.9) { // Lấp đầy >= 90%
+                if (occupancyRate >= 0.9) { // Occupancy >= 90%
                     Map<String, String> notif = new HashMap<>();
                     notif.put("type", "danger");
                     notif.put("title", "Cảnh báo quá tải");
@@ -96,9 +99,9 @@ public class DashboardAdminController extends HttpServlet {
                 }
             }
             
-            // Thông báo vi phạm mới nhất (nếu có)
+            // Latest violation notification (if any)
             if (!violations.isEmpty()) {
-                Violation lastVio = violations.get(violations.size() - 1); // Lấy vi phạm cuối
+                Violation lastVio = violations.get(violations.size() - 1); // Get last violation
                 Map<String, String> notif = new HashMap<>();
                 notif.put("type", "warning");
                 notif.put("title", "Có vi phạm chưa xử lý");
@@ -107,7 +110,7 @@ public class DashboardAdminController extends HttpServlet {
                 systemNotifications.add(notif);
             }
             
-            // Cập nhật tình hình chung
+            // Update general situation
             Map<String, String> infoNotif = new HashMap<>();
             infoNotif.put("type", "primary");
             infoNotif.put("title", "Báo cáo trong ngày");
@@ -116,7 +119,7 @@ public class DashboardAdminController extends HttpServlet {
             systemNotifications.add(infoNotif);
 
 
-            // 5. SET ATTRIBUTES LÊN JSP
+            // 5. SET ATTRIBUTES TO JSP
             request.setAttribute("emptySlots", emptySlots);
             request.setAttribute("totalSlots", totalSlots);
             request.setAttribute("totalRevenue", totalRevenue);

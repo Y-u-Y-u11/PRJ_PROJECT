@@ -2,9 +2,10 @@ package controllers;
 
 import dal.PriceRuleDAO;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,8 +15,8 @@ import models.PriceRule;
 
 /**
  * Handles pricing rules configuration. Accessible by Admin.
+ * Supports sorting by ruleID, typeID, startHour, endHour, price.
  */
-@WebServlet(name = "PricingController", urlPatterns = {"/admin/pricing"})
 public class PricingController extends HttpServlet {
 
     @Override
@@ -23,17 +24,56 @@ public class PricingController extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("user");
-        
+
         if (currentUser == null || !"admin".equalsIgnoreCase(currentUser.getRole())) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-        
+
         try {
             PriceRuleDAO dao = new PriceRuleDAO();
             List<PriceRule> rules = dao.readPriceRules();
-            
+
+            // ---- Sorting ----
+            String sort = request.getParameter("sort");
+            String order = request.getParameter("order");
+
+            if (sort == null || sort.isEmpty()) {
+                sort = "ruleID";
+            }
+            if (order == null || order.isEmpty()) {
+                order = "asc";
+            }
+
+            Comparator<PriceRule> comparator;
+            switch (sort) {
+                case "typeID":
+                    comparator = Comparator.comparing(PriceRule::getTypeID, Comparator.nullsFirst(String::compareTo));
+                    break;
+                case "startHour":
+                    comparator = Comparator.comparing(PriceRule::getStartHour, Comparator.nullsFirst(String::compareTo));
+                    break;
+                case "endHour":
+                    comparator = Comparator.comparing(PriceRule::getEndHour, Comparator.nullsFirst(String::compareTo));
+                    break;
+                case "price":
+                    comparator = Comparator.comparingDouble(PriceRule::getPrice);
+                    break;
+                default: // ruleID
+                    comparator = Comparator.comparingInt(PriceRule::getRuleID);
+                    break;
+            }
+
+            if ("desc".equalsIgnoreCase(order)) {
+                comparator = comparator.reversed();
+            }
+            rules = rules.stream().sorted(comparator).collect(Collectors.toList());
+
             request.setAttribute("rules", rules);
+            request.setAttribute("sort", sort);
+            request.setAttribute("order", order);
+            request.setAttribute("nextOrder", "asc".equalsIgnoreCase(order) ? "desc" : "asc");
+
             request.getRequestDispatcher("/views/admin/pricing.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("error", "Error loading pricing rules: " + e.getMessage());
@@ -44,68 +84,10 @@ public class PricingController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setCharacterEncoding("UTF-8");
-        HttpSession session = request.getSession();
-        User currentUser = (User) session.getAttribute("user");
-        
-        if (currentUser == null || !"admin".equalsIgnoreCase(currentUser.getRole())) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
-
-        // Đọc tham số action để biết cần làm gì (mặc định là add)
-        String action = request.getParameter("action");
-        if (action == null) {
-            action = "add";
-        }
-
-        try {
-            PriceRuleDAO dao = new PriceRuleDAO();
-
-            if ("add".equals(action)) {
-                String typeID = request.getParameter("typeID");
-                String startHour = request.getParameter("startHour");
-                String endHour = request.getParameter("endHour");
-                double price = Double.parseDouble(request.getParameter("price"));
-                
-                PriceRule newRule = new PriceRule();
-                newRule.setTypeID(typeID);
-                newRule.setStartHour(startHour);
-                newRule.setEndHour(endHour);
-                newRule.setPrice(price);
-                
-                dao.createPriceRule(newRule);
-                session.setAttribute("message", "Thêm quy tắc giá thành công!");
-                
-            } else if ("update".equals(action)) {
-                int ruleID = Integer.parseInt(request.getParameter("ruleID"));
-                String typeID = request.getParameter("typeID");
-                String startHour = request.getParameter("startHour");
-                String endHour = request.getParameter("endHour");
-                double price = Double.parseDouble(request.getParameter("price"));
-                
-                PriceRule updatedRule = new PriceRule();
-                updatedRule.setRuleID(ruleID);
-                updatedRule.setTypeID(typeID);
-                updatedRule.setStartHour(startHour);
-                updatedRule.setEndHour(endHour);
-                updatedRule.setPrice(price);
-                
-                dao.updatePriceRule(updatedRule);
-                session.setAttribute("message", "Cập nhật quy tắc giá thành công!");
-                
-            } else if ("delete".equals(action)) {
-                int ruleID = Integer.parseInt(request.getParameter("ruleID"));
-                dao.deletePriceRule(ruleID);
-                session.setAttribute("message", "Xóa quy tắc giá thành công!");
-            }
-            
-            // Áp dụng PRG Pattern - Chỉnh sửa lại URL redirect cho chính xác
-            response.sendRedirect(request.getContextPath() + "/admin/pricing");
-            
-        } catch (Exception e) {
-            session.setAttribute("error", "Thao tác thất bại: " + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/admin/pricing");
-        }
+        // All POST actions (add, update, delete) have been moved to dedicated controllers:
+        // - PricingAddController
+        // - PricingEditController
+        // - PricingDeleteController
+        response.sendRedirect(request.getContextPath() + "/admin/pricing");
     }
 }
