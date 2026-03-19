@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý nhân viên - Parking Management</title>
+    <title>Báo Cáo Doanh Thu - Parking Management</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/web/style.css">
 </head>
 <body>
@@ -45,7 +45,10 @@
                     <c:forEach items="${reportData}" var="ticket">
                         <tr>
                             <td class="px-4 fw-bold text-primary">#${ticket.ticketID}</td>
-                            <td class="fw-bold">${ticket.vehicleID}</td>
+                            
+                            <!-- Đồng bộ UI và gọi biến plateNumber -->
+                            <td><span class="badge bg-light text-dark border px-2 py-1">${ticket.plateNumber}</span></td>
+                            
                             <td><fmt:formatDate value="${ticket.checkInTime}" pattern="dd/MM/yyyy HH:mm" /></td>
                             
                             <td>
@@ -84,9 +87,6 @@
     </div>
 </div>
 
-        </div>
-    </div>
-</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

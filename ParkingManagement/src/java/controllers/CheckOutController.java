@@ -1,17 +1,18 @@
 package controllers;
 
+import dal.DBContext;
 import dal.ParkingTicketDAO;
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import models.User;
+import models.ParkingTicket;
 
-/**
- * Handles vehicle checkout process. Accessible by Staff.
- */
 public class CheckOutController extends HttpServlet {
 
     @Override
@@ -26,6 +27,26 @@ public class CheckOutController extends HttpServlet {
         }
         
         String slotCode = request.getParameter("slotCode");
+        ParkingTicket activeTicket = null;
+        
+        // Truy vấn trực tiếp để lấy Ticket đang đỗ tại Slot này để hiển thị lên form
+        try {
+            DBContext db = new DBContext();
+            String sql = "SELECT pt.* FROM ParkingTicket pt JOIN ParkingSlot ps ON pt.slotID = ps.slotID WHERE ps.slotCode = ? AND pt.status = 'Parking'";
+            PreparedStatement stm = db.connection.prepareStatement(sql);
+            stm.setString(1, slotCode);
+            ResultSet rs = stm.executeQuery();
+            if (rs.next()) {
+                activeTicket = new ParkingTicket();
+                activeTicket.setTicketID(rs.getInt("ticketID"));
+                activeTicket.setVehicleID(rs.getString("vehicleID"));
+                activeTicket.setCheckInTime(rs.getTimestamp("checkInTime"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        request.setAttribute("ticket", activeTicket);
         request.setAttribute("slotCode", slotCode);
         request.getRequestDispatcher("/views/staff/checkout.jsp").forward(request, response);
     }
@@ -44,19 +65,18 @@ public class CheckOutController extends HttpServlet {
         try {
             String ticketIdParam = request.getParameter("ticketID");
             
-            // Handle edge case: Lost ticket
             if (ticketIdParam == null || ticketIdParam.isEmpty()) {
-                request.setAttribute("error", "Bắt buộc phải có mã vé. Vui lòng thực hiện quy trình 'Lost Ticket'.");
+                request.setAttribute("error", "Không tìm thấy mã vé!");
                 request.getRequestDispatcher("/views/error.jsp").forward(request, response);
                 return;
             }
             
             int ticketID = Integer.parseInt(ticketIdParam);
             
+            // DAO tự động tính tiền, cập nhật vé và giải phóng Slot
             ParkingTicketDAO ticketDao = new ParkingTicketDAO();
-            ticketDao.checkOut(ticketID); // DAO will automatically calculate the fee and free the slot
+            ticketDao.checkOut(ticketID); 
             
-            // PRG pattern - Return to Dashboard page with success message
             response.sendRedirect(request.getContextPath() + "/staff/dashboard?success=checkout");
             
         } catch (Exception e) {

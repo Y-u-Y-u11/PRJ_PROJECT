@@ -12,6 +12,29 @@ public class ParkingTicketDAO extends DBContext {
     private PreparedStatement stm;
     private ResultSet rs;
 
+    
+    public ParkingTicket getActiveTicketBySlotCode(String slotCode) {
+        String sql = "SELECT pt.* FROM ParkingTicket pt " +
+                     "JOIN ParkingSlot ps ON pt.slotID = ps.slotID " +
+                     "WHERE ps.slotCode = ? AND pt.status = 'Parking'";
+        try {
+            stm = connection.prepareStatement(sql);
+            stm.setString(1, slotCode);
+            rs = stm.executeQuery();
+            if (rs.next()) {
+                ParkingTicket t = new ParkingTicket();
+                t.setTicketID(rs.getInt("ticketID"));
+                t.setVehicleID(rs.getString("vehicleID"));
+                t.setSlotID(rs.getString("slotID"));
+                t.setCheckInTime(rs.getTimestamp("checkInTime"));
+                return t;
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return null;
+    }
+    
     /**
      * Checks in a vehicle, creating a new ticket and updating slot status.
      *
@@ -57,46 +80,59 @@ public class ParkingTicketDAO extends DBContext {
     }
 
     /**
-     * Checks out a vehicle, calculates fee using PriceRuleDAO, updates checkout time and slot status.
+     * Checks out a vehicle, calculates fixed fee, updates checkout time and slot status.
      *
      * @param ticketID The ID of the ticket to checkout
      */
     public void checkOut(int ticketID) {
-        String getTicketSql = "SELECT pt.checkInTime, pt.slotID, v.typeID FROM ParkingTicket pt JOIN Vehicle v ON pt.vehicleID = v.vehicleID WHERE pt.ticketID = ?";
+        // Dùng LEFT JOIN để tránh lỗi nếu không tìm thấy vehicle tương ứng
+        String getTicketSql = "SELECT pt.checkInTime, pt.slotID, v.typeID FROM ParkingTicket pt LEFT JOIN Vehicle v ON pt.vehicleID = v.vehicleID WHERE pt.ticketID = ?";
         try {
             connection.setAutoCommit(false);
 
             stm = connection.prepareStatement(getTicketSql);
             stm.setInt(1, ticketID);
             rs = stm.executeQuery();
+            
             if (rs.next()) {
                 Timestamp checkInTime = rs.getTimestamp("checkInTime");
                 int slotID = rs.getInt("slotID");
                 int typeID = rs.getInt("typeID");
-
-                long diff = System.currentTimeMillis() - checkInTime.getTime();
-                int hours = (int) Math.ceil(diff / (1000.0 * 60 * 60));
-                if (hours == 0) {
-                    hours = 1;
+                if (rs.wasNull()) {
+                    typeID = 1; // Mặc định là xe máy nếu thiếu dữ liệu
                 }
 
                 rs.close();
                 stm.close();
 
-                PriceRuleDAO priceRuleDAO = new PriceRuleDAO();
-                double fee = priceRuleDAO.getPrice(typeID, hours);
+                // Logic tính tiền cố định
+                double baseFee = 5000; // Mặc định giá xe máy
+                if (typeID == 2) baseFee = 20000; // Giá ô tô
+                else if (typeID == 3) baseFee = 3000; // Giá xe đạp
 
+                // Tính số ngày chênh lệch để cộng thêm tiền (sang ngày mới)
+                java.time.LocalDate inDate = checkInTime.toLocalDateTime().toLocalDate();
+                java.time.LocalDate outDate = java.time.LocalDate.now();
+                long extraDays = java.time.temporal.ChronoUnit.DAYS.between(inDate, outDate);
+                if (extraDays < 0) extraDays = 0;
+
+                double totalFee = baseFee + (extraDays * baseFee);
+
+                // Cập nhật trạng thái Vé
                 String updateTicket = "UPDATE ParkingTicket SET checkOutTime = GETDATE(), status = 'Completed', totalFee = ? WHERE ticketID = ?";
                 stm = connection.prepareStatement(updateTicket);
-                stm.setDouble(1, fee);
+                stm.setDouble(1, totalFee);
                 stm.setInt(2, ticketID);
-                stm.executeUpdate();
+                int ticketUpdated = stm.executeUpdate();
                 stm.close();
 
-                String updateSlot = "UPDATE ParkingSlot SET status = 'Empty' WHERE slotID = ?";
-                stm = connection.prepareStatement(updateSlot);
-                stm.setInt(1, slotID);
-                stm.executeUpdate();
+                // Cập nhật trạng thái Slot (Chỉ khi cập nhật vé thành công)
+                if (ticketUpdated > 0) {
+                    String updateSlot = "UPDATE ParkingSlot SET status = 'Empty' WHERE slotID = ?";
+                    stm = connection.prepareStatement(updateSlot);
+                    stm.setInt(1, slotID);
+                    stm.executeUpdate();
+                }
             }
             connection.commit();
         } catch (SQLException e) {
@@ -109,12 +145,8 @@ public class ParkingTicketDAO extends DBContext {
         } finally {
             try {
                 connection.setAutoCommit(true);
-                if (rs != null) {
-                    rs.close();
-                }
-                if (stm != null) {
-                    stm.close();
-                }
+                if (rs != null) rs.close();
+                if (stm != null) stm.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -140,7 +172,10 @@ public class ParkingTicketDAO extends DBContext {
 
     public ArrayList<ParkingTicket> readParkingTickets() {
         ArrayList<ParkingTicket> result = new ArrayList<>();
-        String sql = "select * from ParkingTicket";
+        // Cập nhật SQL JOIN để lấy biển số xe
+        String sql = "SELECT pt.*, v.plateNumber FROM ParkingTicket pt " +
+                     "LEFT JOIN Vehicle v ON pt.vehicleID = v.vehicleID " +
+                     "ORDER BY pt.checkInTime DESC";
         try {
             stm = connection.prepareStatement(sql);
             ResultSet rs = stm.executeQuery();
@@ -154,6 +189,12 @@ public class ParkingTicketDAO extends DBContext {
                 o.setCheckOutTime(rs.getTimestamp("checkOutTime"));
                 o.setTotalFee(rs.getDouble("totalFee"));
                 o.setStatus(rs.getString("status"));
+                
+                // Hứng dữ liệu biển số xe từ JOIN
+                try {
+                    o.setPlateNumber(rs.getString("plateNumber"));
+                } catch (SQLException ignore) {}
+                
                 result.add(o);
             }
         } catch (SQLException e) {

@@ -12,6 +12,7 @@ public class ViolationDAO extends DBContext {
     private PreparedStatement stm;
     private ResultSet rs;
 
+    
     public void createViolation(Violation o) {
         String sql = "insert into Violation (ticketID, reason, fineAmount) values (?, ?, ?)";
         try {
@@ -27,7 +28,12 @@ public class ViolationDAO extends DBContext {
 
     public ArrayList<Violation> readViolations() {
         ArrayList<Violation> result = new ArrayList<>();
-        String sql = "select * from Violation";
+        // Cập nhật SQL JOIN để lấy tên và biển số xe
+        String sql = "SELECT v.*, c.fullName, veh.plateNumber " +
+                     "FROM Violation v " +
+                     "LEFT JOIN ParkingTicket pt ON v.ticketID = pt.ticketID " +
+                     "LEFT JOIN Vehicle veh ON pt.vehicleID = veh.vehicleID " +
+                     "LEFT JOIN Customer c ON veh.customerID = c.customerID";
         try {
             stm = connection.prepareStatement(sql);
             ResultSet rs = stm.executeQuery();
@@ -37,6 +43,13 @@ public class ViolationDAO extends DBContext {
                 o.setTicketID(rs.getString("ticketID"));
                 o.setReason(rs.getString("reason"));
                 o.setFineAmount(rs.getDouble("fineAmount"));
+                
+                // Hứng dữ liệu Tên và Biển số xe
+                try {
+                    o.setCustomerName(rs.getString("fullName"));
+                    o.setPlateNumber(rs.getString("plateNumber"));
+                } catch (SQLException ignore) {}
+                
                 result.add(o);
             }
         } catch (SQLException e) {

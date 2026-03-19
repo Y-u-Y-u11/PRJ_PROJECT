@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="3.1"
-         xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
-                             http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
-
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee                               http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
     <display-name>ParkingManagementSystem</display-name>
-
-
     <servlet>
         <servlet-name>LoginController</servlet-name>
         <servlet-class>controllers.LoginController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ZoneController</servlet-name>
+        <servlet-class>controllers.Staff_ZoneController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>Staff_SlotController</servlet-name>
+        <servlet-class>controllers.Staff_SlotController</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginController</servlet-name>
         <url-pattern>/login</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>LogoutController</servlet-name>
         <servlet-class>controllers.LogoutController</servlet-class>
@@ -25,8 +25,6 @@
         <servlet-name>LogoutController</servlet-name>
         <url-pattern>/logout</url-pattern>
     </servlet-mapping>
-
-
     <servlet>
         <servlet-name>DashboardStaffController</servlet-name>
         <servlet-class>controllers.DashboardStaffController</servlet-class>
@@ -35,7 +33,6 @@
         <servlet-name>DashboardStaffController</servlet-name>
         <url-pattern>/staff/dashboard</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>DashboardAdminController</servlet-name>
         <servlet-class>controllers.DashboardAdminController</servlet-class>
@@ -44,7 +41,6 @@
         <servlet-name>DashboardAdminController</servlet-name>
         <url-pattern>/admin/dashboard</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>StaffManagementController</servlet-name>
         <servlet-class>controllers.StaffManagementController</servlet-class>
@@ -53,7 +49,6 @@
         <servlet-name>StaffManagementController</servlet-name>
         <url-pattern>/admin/staffManagement</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>StaffEditController</servlet-name>
         <servlet-class>controllers.StaffEditController</servlet-class>
@@ -62,7 +57,6 @@
         <servlet-name>StaffEditController</servlet-name>
         <url-pattern>/admin/staffManagement/edit</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>StaffDeleteController</servlet-name>
         <servlet-class>controllers.StaffDeleteController</servlet-class>
@@ -71,7 +65,6 @@
         <servlet-name>StaffDeleteController</servlet-name>
         <url-pattern>/admin/staffManagement/delete</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>PricingController</servlet-name>
         <servlet-class>controllers.PricingController</servlet-class>
@@ -80,7 +73,6 @@
         <servlet-name>PricingController</servlet-name>
         <url-pattern>/admin/pricing</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>PricingEditController</servlet-name>
         <servlet-class>controllers.PricingEditController</servlet-class>
@@ -89,7 +81,6 @@
         <servlet-name>PricingEditController</servlet-name>
         <url-pattern>/admin/pricing/edit</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>PricingDeleteController</servlet-name>
         <servlet-class>controllers.PricingDeleteController</servlet-class>
@@ -98,7 +89,6 @@
         <servlet-name>PricingDeleteController</servlet-name>
         <url-pattern>/admin/pricing/delete</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>ReportController</servlet-name>
         <servlet-class>controllers.ReportController</servlet-class>
@@ -107,7 +97,6 @@
         <servlet-name>ReportController</servlet-name>
         <url-pattern>/admin/reports</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>CheckInController</servlet-name>
         <servlet-class>controllers.CheckInController</servlet-class>
@@ -116,7 +105,6 @@
         <servlet-name>CheckInController</servlet-name>
         <url-pattern>/staff/check-in</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>CheckOutController</servlet-name>
         <servlet-class>controllers.CheckOutController</servlet-class>
@@ -125,7 +113,6 @@
         <servlet-name>CheckOutController</servlet-name>
         <url-pattern>/staff/check-out</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>ParkingSlotController</servlet-name>
         <servlet-class>controllers.ParkingSlotController</servlet-class>
@@ -134,7 +121,6 @@
         <servlet-name>ParkingSlotController</servlet-name>
         <url-pattern>/staff/parking-slots</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>SubscriptionController</servlet-name>
         <servlet-class>controllers.SubscriptionController</servlet-class>
@@ -143,7 +129,6 @@
         <servlet-name>SubscriptionController</servlet-name>
         <url-pattern>/staff/subscriptions</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>TicketController</servlet-name>
         <servlet-class>controllers.TicketController</servlet-class>
@@ -152,7 +137,6 @@
         <servlet-name>TicketController</servlet-name>
         <url-pattern>/staff/ticket</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>ViolationDeleteController</servlet-name>
         <servlet-class>controllers.ViolationDeleteController</servlet-class>
@@ -161,7 +145,6 @@
         <servlet-name>ViolationDeleteController</servlet-name>
         <url-pattern>/admin/violations/delete</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>StaffAddController</servlet-name>
         <servlet-class>controllers.StaffAddController</servlet-class>
@@ -170,7 +153,6 @@
         <servlet-name>StaffAddController</servlet-name>
         <url-pattern>/admin/staffManagement/add</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>ViolationController</servlet-name>
         <servlet-class>controllers.ViolationController</servlet-class>
@@ -179,7 +161,6 @@
         <servlet-name>ViolationController</servlet-name>
         <url-pattern>/admin/violations</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>PricingAddController</servlet-name>
         <servlet-class>controllers.PricingAddController</servlet-class>
@@ -188,7 +169,6 @@
         <servlet-name>PricingAddController</servlet-name>
         <url-pattern>/admin/pricing/add</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>ViolationAddController</servlet-name>
         <servlet-class>controllers.ViolationAddController</servlet-class>
@@ -197,7 +177,6 @@
         <servlet-name>ViolationAddController</servlet-name>
         <url-pattern>/admin/violations/add</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>ViolationEditController</servlet-name>
         <servlet-class>controllers.ViolationEditController</servlet-class>
@@ -206,9 +185,15 @@
         <servlet-name>ViolationEditController</servlet-name>
         <url-pattern>/admin/violations/edit</url-pattern>
     </servlet-mapping>
-
+    <servlet-mapping>
+        <servlet-name>ZoneController</servlet-name>
+        <url-pattern>/staff/zone</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Staff_SlotController</servlet-name>
+        <url-pattern>/staff/slot</url-pattern>
+    </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
-
 </web-app>

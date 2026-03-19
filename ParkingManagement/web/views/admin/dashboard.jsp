@@ -150,7 +150,8 @@
                                 <thead class="table-light text-muted">
                                     <tr>
                                         <th class="ps-4">Mã Vé</th>
-                                        <th>Biển Số/Xe ID</th>
+                                        <!-- Đổi header cho rõ nghĩa -->
+                                        <th>Biển Số Xe</th>
                                         <th>Vị Trí Đỗ</th>
                                         <th>Giờ Vào</th>
                                         <th>Giờ Ra</th>
@@ -160,14 +161,12 @@
                                 <tbody>
                                     <c:choose>
                                         <c:when test="${not empty recentHistories}">
-                                            <!-- Duyệt qua tối đa 7 dòng lịch sử gần nhất -->
                                             <c:forEach items="${recentHistories}" var="history" begin="0" end="6">
                                                 <tr>
-                                                    <!-- Đã sửa .id thành .ticketID để map với Model ParkingTicket -->
                                                     <td class="ps-4 text-muted fw-medium">#${history.ticketID}</td>
                                                     <td class="fw-bold text-dark">
-                                                        <!-- Đã sửa .licensePlate thành .vehicleID -->
-                                                        <span class="border border-dark rounded px-2 py-1 bg-light">${history.vehicleID}</span>
+                                                        <!-- Thay history.vehicleID bằng history.plateNumber -->
+                                                        <span class="border border-dark rounded px-2 py-1 bg-light">${history.plateNumber}</span>
                                                     </td>
                                                     <td>
                                                         <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">${not empty history.slotID ? history.slotID : 'Khu chung'}</span>

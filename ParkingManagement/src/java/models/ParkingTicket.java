@@ -16,10 +16,16 @@ public class ParkingTicket {
     private double totalFee;
     private String status;
 
+    // Thuộc tính bổ sung để hiển thị
+    private String plateNumber;
+
     public ParkingTicket() {
     }
 
-    public ParkingTicket(int ticketID, String vehicleID, String slotID, String createdBy, Timestamp checkInTime, Timestamp checkOutTime, double totalFee, String status) {
+    // Constructor cũ
+    public ParkingTicket(int ticketID, String vehicleID, String slotID,
+                         String createdBy, Timestamp checkInTime,
+                         Timestamp checkOutTime, double totalFee, String status) {
         this.ticketID = ticketID;
         this.vehicleID = vehicleID;
         this.slotID = slotID;
@@ -28,6 +34,22 @@ public class ParkingTicket {
         this.checkOutTime = checkOutTime;
         this.totalFee = totalFee;
         this.status = status;
+    }
+
+    // Constructor mở rộng (có thêm plateNumber)
+    public ParkingTicket(int ticketID, String vehicleID, String slotID,
+                         String createdBy, Timestamp checkInTime,
+                         Timestamp checkOutTime, double totalFee, String status,
+                         String plateNumber) {
+        this.ticketID = ticketID;
+        this.vehicleID = vehicleID;
+        this.slotID = slotID;
+        this.createdBy = createdBy;
+        this.checkInTime = checkInTime;
+        this.checkOutTime = checkOutTime;
+        this.totalFee = totalFee;
+        this.status = status;
+        this.plateNumber = plateNumber;
     }
 
     public int getTicketID() {
@@ -94,17 +116,26 @@ public class ParkingTicket {
         this.status = status;
     }
 
+    public String getPlateNumber() {
+        return plateNumber;
+    }
+
+    public void setPlateNumber(String plateNumber) {
+        this.plateNumber = plateNumber;
+    }
+
     @Override
     public String toString() {
         return "ParkingTicket{"
                 + "ticketID=" + ticketID + ", "
-                + "vehicleID=" + vehicleID + ", "
-                + "slotID=" + slotID + ", "
-                + "createdBy=" + createdBy + ", "
+                + "vehicleID='" + vehicleID + "', "
+                + "slotID='" + slotID + "', "
+                + "createdBy='" + createdBy + "', "
                 + "checkInTime=" + checkInTime + ", "
                 + "checkOutTime=" + checkOutTime + ", "
                 + "totalFee=" + totalFee + ", "
-                + "status=" + status
+                + "status='" + status + "', "
+                + "plateNumber='" + plateNumber + "'"
                 + "}";
     }
 }
