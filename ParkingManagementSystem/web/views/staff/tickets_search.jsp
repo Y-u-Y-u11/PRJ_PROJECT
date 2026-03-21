@@ -1,59 +1,50 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <jsp:include page="/views/layout/header.jsp" />
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Tra Cứu Gửi Xe</h2>
-    <a href="${pageContext.request.contextPath}/staff/dashboard" class="btn btn-secondary">Quay lại</a>
-</div>
+<div class="row w-100 justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-danger mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Lập biên bản vi phạm</h5>
+            </div>
+            <div class="card-body">
+                <c:if test="${not empty error}">
+                    <div class="alert alert-danger">${error}</div>
+                </c:if>
 
-<div class="card shadow-sm mb-4">
-    <div class="card-body">
-        <form action="${pageContext.request.contextPath}/staff/tickets/search" method="GET" class="d-flex w-50">
-            <input type="text" name="keyword" class="form-control me-2" placeholder="Biển số xe hoặc Mã Vé" value="${keyword}" required>
-            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
-        </form>
-    </div>
-</div>
+                <form action="${pageContext.request.contextPath}/staff/violations/create" method="POST">
+                    <c:if test="${ticket != null}">
+                        <input type="hidden" name="ticketId" value="${ticket.id}">
+                        <div class="alert alert-info">Ghi nhận vi phạm cho vé: <strong>${ticket.ticketCode}</strong> (Biển số: ${ticket.plateNumber})</div>
+                    </c:if>
 
-<c:if test="${not empty keyword}">
-    <div class="card shadow-sm border-info mt-3">
-        <div class="card-header bg-info text-white">
-            <h5 class="mb-0">Kết quả Tìm kiếm cho "${keyword}"</h5>
-        </div>
-        <div class="card-body">
-            <c:choose>
-                <c:when test="${not empty tickets}">
-                    <table class="table table-bordered mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Mã Vé</th>
-                                <th>Biển số</th>
-                                <th>Giờ vào</th>
-                                <th>Ô đỗ</th>
-                                <th>Khách hàng</th>
-                                <th>Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="t" items="${tickets}">
-                                <tr>
-                                    <td><a href="${pageContext.request.contextPath}/staff/tickets/checkout?ticketCode=${t.ticketCode}">${t.ticketCode}</a></td>
-                                    <td>${t.plateNumber}</td>
-                                    <td>${t.checkInTime}</td>
-                                    <td>${t.slotID}</td>
-                                    <td>${t.customerID}</td>
-                                    <td><span class="badge bg-warning text-dark">${t.status}</span></td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </c:when>
-                <c:otherwise>
-                    <p class="text-danger mb-0">Không tìm thấy xe đang đỗ nào với từ khóa này.</p>
-                </c:otherwise>
-            </c:choose>
+                    <h6 class="mb-3 border-bottom pb-2">Thông tin Khách hàng (Bắt buộc)</h6>
+                    <div class="mb-3">
+                        <label class="form-label">Họ tên</label>
+                        <input type="text" class="form-control" name="customerName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">SĐT</label>
+                        <input type="text" class="form-control" name="customerPhone" required>
+                    </div>
+
+                    <h6 class="mb-3 border-bottom pb-2 mt-4">Chi tiết Vi phạm</h6>
+                    <div class="mb-3">
+                        <label class="form-label">Lý do</label>
+                        <textarea class="form-control" name="reason" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tiền phạt (VNĐ)</label>
+                        <input type="number" class="form-control" name="fine" min="0" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-danger w-100 py-2 fs-5">Lưu Vi phạm</button>
+                    <a href="${pageContext.request.contextPath}/staff/dashboard" class="btn btn-outline-secondary w-100 mt-2">Hủy</a>
+                </form>
+            </div>
         </div>
     </div>
-</c:if>
+</div>
 
 <jsp:include page="/views/layout/footer.jsp" />

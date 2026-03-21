@@ -34,6 +34,7 @@
                         <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/staff/dashboard">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/staff/tickets">Danh sách Vé</a></li>
                         <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/staff/tickets/checkin">Check-in</a></li>
+                        <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/staff/tickets/checkout">Check-out</a></li>
                         <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/staff/violations">Vi phạm</a></li>
                         <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/staff/customers">Khách hàng</a></li>
                     </c:if>
