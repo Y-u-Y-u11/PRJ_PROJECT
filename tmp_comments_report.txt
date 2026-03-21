@@ -1,8 +1,0 @@
-[CheckInController.java:60] // Xử lý tạo ticket check-in trong DB
-[DashboardAdminController.java:94] notif.put("message", "Bãi đỗ xe đã lấp đầy " + Math.round(occupancyRate * 100) + "%. Hiện chỉ còn " + emptySlots + " chỗ trống.");
-[PricingController.java:56] // Đọc tham số action để biết cần làm gì (mặc định là add)
-[PricingController.java:103] // Áp dụng PRG Pattern - Chỉnh sửa lại URL redirect cho chính xác
-
-Files with Vietnamese comments: 3
-Files without standard Javadoc class header: 12
-Files without Javadoc: DashboardAdminController.java, PricingAddController.java, PricingEditController.java, ReportController.java, StaffAddController.java, StaffEditController.java, StaffManagementController.java, ViolationAddController.java, ViolationController.java, ViolationEditController.java, DBContext.java, PriceRuleDAO.java
