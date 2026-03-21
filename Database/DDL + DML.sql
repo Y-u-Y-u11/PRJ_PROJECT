@@ -1,4 +1,4 @@
-﻿-- ======================================================
+-- ======================================================
 -- RESET & INITIALIZE PARKING DATABASE
 -- ======================================================
 
@@ -29,31 +29,6 @@ CREATE TABLE Users (
     fullName NVARCHAR(100),
     role VARCHAR(10) NOT NULL CHECK (role IN ('manager','staff')),
     status VARCHAR(10) DEFAULT 'active' CHECK (status IN ('active','inactive'))
-);
-
--- =========================
--- 2. SHIFT
--- =========================
-CREATE TABLE Shift (
-    id INT IDENTITY PRIMARY KEY,
-    shiftName NVARCHAR(50) NOT NULL,
-    startTime TIME NOT NULL,
-    endTime TIME NOT NULL,
-    breakMinutes INT NOT NULL DEFAULT 0
-);
-
--- =========================
--- 3. STAFF SHIFT ASSIGNMENT
--- =========================
-CREATE TABLE StaffShiftAssignment (
-    id INT IDENTITY PRIMARY KEY,
-    staffID INT NOT NULL,
-    shiftID INT NOT NULL,
-    workDate DATE NOT NULL,
-    note NVARCHAR(255),
-    FOREIGN KEY (staffID) REFERENCES Users(id),
-    FOREIGN KEY (shiftID) REFERENCES Shift(id),
-    CONSTRAINT UQ_StaffShift UNIQUE (staffID, shiftID, workDate)
 );
 
 -- =========================
@@ -187,18 +162,6 @@ INSERT INTO Users (username, passwordHash, fullName, role, status) VALUES
 ('staff2', '123', N'Lê Thị Lan', 'staff', 'active'),
 ('staff3', '123', N'Phạm Việt Hùng', 'staff', 'active'),
 ('staff4', '123', N'Đỗ Văn Nghỉ', 'staff', 'inactive');
-
--- 2. Shift
-INSERT INTO Shift (shiftName, startTime, endTime, breakMinutes) VALUES
-(N'Ca Sáng', '06:00:00', '14:00:00', 30),
-(N'Ca Chiều', '14:00:00', '22:00:00', 30),
-(N'Ca Đêm', '22:00:00', '06:00:00', 60);
-
--- 3. StaffShiftAssignment
-INSERT INTO StaffShiftAssignment (staffID, shiftID, workDate, note) VALUES
-(2, 1, CAST(GETDATE() AS DATE), N'Trực cổng A'),
-(3, 2, CAST(GETDATE() AS DATE), N'Trực cổng B'),
-(4, 3, CAST(GETDATE() AS DATE), N'Tuần tra bãi xe');
 
 -- 4. VehicleType
 INSERT INTO VehicleType (name, currentPrice, requiresPlate) VALUES 
