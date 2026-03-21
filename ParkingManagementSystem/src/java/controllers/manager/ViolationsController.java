@@ -1,6 +1,5 @@
 package controllers.manager;
 
-// For simplicity, Manager can just view a holistic list via ViolationDAO
 import dal.ViolationDAO;
 import java.io.IOException;
 import java.util.List;

@@ -33,10 +33,7 @@
                         </td>
                         <td>
                             <a href="${pageContext.request.contextPath}/manager/users/update?id=${s.id}" class="btn btn-sm btn-outline-secondary">Sửa</a>
-                            <form action="${pageContext.request.contextPath}/manager/users/delete" method="POST" class="d-inline" onsubmit="return confirm('Chắc chắn xóa?');">
-                                <input type="hidden" name="id" value="${s.id}">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
-                            </form>
+                            <a href="${pageContext.request.contextPath}/manager/users/delete?id=${s.id}" class="btn btn-sm btn-outline-danger">Xóa</a>
                         </td>
                     </tr>
                 </c:forEach>

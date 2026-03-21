@@ -3,13 +3,13 @@
 
 <div class="row">
     <div class="col-md-12 mb-4">
-        <h2>Tổng quan Bãi đỗ xe</h2>
+        <h2>Tổng quan</h2>
     </div>
     
     <div class="col-md-3">
         <div class="card bg-primary text-white text-center mb-3 shadow-sm">
             <div class="card-body">
-                <h5 class="card-title">Tổng số Ô đỗ</h5>
+                <h5 class="card-title">Tổng số ô đỗ</h5>
                 <h2 class="display-4">${totalSlots}</h2>
             </div>
         </div>

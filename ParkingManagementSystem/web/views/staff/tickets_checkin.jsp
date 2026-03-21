@@ -30,9 +30,9 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Chọn Ô Đỗ (Trống)</label>
+                        <label class="form-label">Chọn ô đỗ (Trống)</label>
                         <select name="slotId" class="form-select" required>
-                            <option value="">-- Chọn Ô Đỗ --</option>
+                            <option value="">-- Chọn ô đỗ --</option>
                             <c:forEach var="s" items="${availableSlots}">
                                 <option value="${s.id}">${s.code}</option>
                             </c:forEach>

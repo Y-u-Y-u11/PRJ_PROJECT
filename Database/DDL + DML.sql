@@ -24,7 +24,7 @@ GO
 CREATE TABLE Users (
     id INT IDENTITY PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
-    passwordHash VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     fullName NVARCHAR(100),
     role VARCHAR(10) NOT NULL CHECK (role IN ('manager','staff')),
     status VARCHAR(10) DEFAULT 'active' CHECK (status IN ('active','inactive'))
@@ -155,7 +155,7 @@ CREATE TABLE AuditLog (
 -- ======================================================
 
 -- 1. Users
-INSERT INTO Users (username, passwordHash, fullName, role, status) VALUES
+INSERT INTO Users (username, password, fullName, role, status) VALUES
 ('admin', '123', N'Nguyễn Quản Lý', 'manager', 'active'),
 ('staff1', '123', N'Trần Văn Tú', 'staff', 'active'),
 ('staff2', '123', N'Lê Thị Lan', 'staff', 'active'),

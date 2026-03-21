@@ -40,17 +40,10 @@ public class AuthController extends HttpServlet {
         }
 
         String username = request.getParameter("username");
-        String passwordHash = request.getParameter("password"); // Password should be hashed client/server side, PRD says "Lưu dạng hash, không plain text"
+        String password = request.getParameter("password");
 
-        // For simplicity, we assume the input is plain or pre-hashed. Let's assume plain is passed and we might need to hash it.
-        // As per PRD: Mật khẩu lưu dạng hash (bcrypt hoặc tương đương). 
-        // We will just do a mockup hash or pass it directly if we don't include an external library like BCrypt.
-        // Assuming plain text matches hash for this minimal generation unless specified.
-        // Let's use simple hash for comparison or skip depending on DB data. I'll just query as is for now.
-        // To be secure, one would use BCrypt.checkpw
-        
         UsersDAO dao = new UsersDAO();
-        Users user = dao.authenticate(username, passwordHash); // using plain for demo if not using jbcypt
+        Users user = dao.authenticate(username, password);
 
         if (user != null) {
             HttpSession session = request.getSession();
@@ -62,7 +55,7 @@ public class AuthController extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/staff/dashboard");
             }
         } else {
-            request.setAttribute("error", "Sai tên đăng nhập hoặc mật khẩu, hoặc tài khoản bị khoá.");
+            request.setAttribute("error", "Sai tên đăng nhập hoặc mật khẩu.");
             request.getRequestDispatcher("/views/auth/login.jsp").forward(request, response);
         }
     }

@@ -22,11 +22,16 @@ public class VehicleTypesController extends HttpServlet {
 
         if ("/manager/vehicle-types/create".equals(action)) {
             request.getRequestDispatcher("/views/manager/vehicle_types_create.jsp").forward(request, response);
-        } else if ("/manager/vehicle-types/update".equals(action)) {
+        } else if ("/manager/vehicle-types/edit".equals(action)) {
             int id = Integer.parseInt(request.getParameter("id"));
             VehicleType vt = dao.getById(id);
-            request.setAttribute("vt", vt);
-            request.getRequestDispatcher("/views/manager/vehicle_types_update.jsp").forward(request, response);
+            request.setAttribute("type", vt);
+            request.getRequestDispatcher("/views/manager/vehicle_type_edit.jsp").forward(request, response);
+        } else if ("/manager/vehicle-types/delete".equals(action)) {
+            int id = Integer.parseInt(request.getParameter("id"));
+            VehicleType vt = dao.getById(id);
+            request.setAttribute("type", vt);
+            request.getRequestDispatcher("/views/manager/vehicle_type_delete_confirm.jsp").forward(request, response);
         } else if ("/manager/vehicle-types".equals(action)) {
             List<VehicleType> list = dao.getAll();
             request.setAttribute("vehicleTypes", list);
@@ -55,7 +60,7 @@ public class VehicleTypesController extends HttpServlet {
                 request.setAttribute("error", "Lỗi tạo loại xe.");
                 request.getRequestDispatcher("/views/manager/vehicle_types_create.jsp").forward(request, response);
             }
-        } else if ("/manager/vehicle-types/update".equals(action)) {
+        } else if ("/manager/vehicle-types/edit".equals(action)) {
             int id = Integer.parseInt(request.getParameter("id"));
             String name = request.getParameter("name");
             BigDecimal currentPrice = new BigDecimal(request.getParameter("currentPrice"));
@@ -64,11 +69,22 @@ public class VehicleTypesController extends HttpServlet {
             VehicleType vt = new VehicleType(id, name, currentPrice, requiresPlate);
             if (dao.update(vt)) {
                 auditDao.create(new AuditLog(0, currentUser.getId(), "UPDATE", "VehicleType", id, null, null, currentPrice.toString(), "Cập nhật loại xe", null));
-                response.sendRedirect(request.getContextPath() + "/manager/vehicle-types");
+                response.sendRedirect(request.getContextPath() + "/manager/vehicle-types?success=updated");
             } else {
                 request.setAttribute("error", "Lỗi cập nhật.");
-                request.setAttribute("vt", vt);
-                request.getRequestDispatcher("/views/manager/vehicle_types_update.jsp").forward(request, response);
+                request.setAttribute("type", vt);
+                request.getRequestDispatcher("/views/manager/vehicle_type_edit.jsp").forward(request, response);
+            }
+        } else if ("/manager/vehicle-types/delete".equals(action)) {
+            int id = Integer.parseInt(request.getParameter("id"));
+            VehicleType vt = dao.getById(id);
+            if (dao.delete(id)) {
+                auditDao.create(new AuditLog(0, currentUser.getId(), "DELETE", "VehicleType", id, null, null, vt.getName(), "Xóa loại xe", null));
+                response.sendRedirect(request.getContextPath() + "/manager/vehicle-types?success=deleted");
+            } else {
+                request.setAttribute("error", "Không thể xóa loại xe. Loại xe có thể đang được sử dụng trong các vé hoặc thẻ tháng còn hoạt động.");
+                request.setAttribute("type", vt);
+                request.getRequestDispatcher("/views/manager/vehicle_type_delete_confirm.jsp").forward(request, response);
             }
         }
     }

@@ -2,10 +2,29 @@
 <jsp:include page="/views/layout/header.jsp" />
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Quản lý Loại xe & Giá tiền</h2>
-    <a href="${pageContext.request.contextPath}/manager/vehicle-types/create" class="btn btn-primary">Thêm Loại xe</a>
-</div>
+<div class="animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0 fw-bold text-gradient">Loại xe & Giá tiền</h2>
+            <p class="text-muted small mb-0">Quản lý các loại phương tiện và thiết lập đơn giá gửi xe.</p>
+        </div>
+        <a href="${pageContext.request.contextPath}/manager/vehicle-types/create" class="btn btn-primary shadow-sm px-4 py-2 rounded-3 fw-bold">
+            <i class="bi bi-plus-circle me-1"></i>Thêm Loại xe
+        </a>
+    </div>
+
+    <c:if test="${param.success == 'updated'}">
+        <div class="alert alert-success bg-success bg-opacity-10 text-success border-0 mb-4 animate-fade-in" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            Cập nhật loại xe thành công!
+        </div>
+    </c:if>
+    <c:if test="${param.success == 'deleted'}">
+        <div class="alert alert-success bg-success bg-opacity-10 text-success border-0 mb-4 animate-fade-in" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            Xóa loại xe thành công!
+        </div>
+    </c:if>
 
 <div class="card shadow-sm">
     <div class="card-body">
@@ -31,8 +50,15 @@
                                 <c:otherwise><span class="badge bg-secondary">Không</span></c:otherwise>
                             </c:choose>
                         </td>
-                        <td>
-                            <a href="${pageContext.request.contextPath}/manager/vehicle-types/update?id=${v.id}" class="btn btn-sm btn-outline-secondary">Cập nhật giá</a>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="${pageContext.request.contextPath}/manager/vehicle-types/edit?id=${v.id}" class="btn btn-sm btn-outline-primary rounded-3 px-3">
+                                    <i class="bi bi-pencil-square me-1"></i>Sửa
+                                </a>
+                                <a href="${pageContext.request.contextPath}/manager/vehicle-types/delete?id=${v.id}" class="btn btn-sm btn-outline-danger rounded-3 px-3">
+                                    <i class="bi bi-trash me-1"></i>Xóa
+                                </a>
+                            </div>
                         </td>
                     </tr>
                 </c:forEach>

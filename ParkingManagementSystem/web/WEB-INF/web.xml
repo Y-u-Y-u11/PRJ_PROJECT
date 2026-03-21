@@ -102,6 +102,9 @@
         <servlet-name>CustomersControllerManager</servlet-name>
         <url-pattern>/manager/customers</url-pattern>
         <url-pattern>/manager/customers/view</url-pattern>
+        <url-pattern>/manager/customers/create</url-pattern>
+        <url-pattern>/manager/customers/edit</url-pattern>
+        <url-pattern>/manager/customers/delete</url-pattern>
     </servlet-mapping>
     <servlet>
         <servlet-name>SlotsController</servlet-name>
@@ -112,6 +115,7 @@
         <url-pattern>/manager/slots</url-pattern>
         <url-pattern>/manager/slots/create</url-pattern>
         <url-pattern>/manager/slots/update</url-pattern>
+        <url-pattern>/manager/slots/delete</url-pattern>
     </servlet-mapping>
     <servlet>
         <servlet-name>VehicleTypesController</servlet-name>
@@ -121,7 +125,8 @@
         <servlet-name>VehicleTypesController</servlet-name>
         <url-pattern>/manager/vehicle-types</url-pattern>
         <url-pattern>/manager/vehicle-types/create</url-pattern>
-        <url-pattern>/manager/vehicle-types/update</url-pattern>
+        <url-pattern>/manager/vehicle-types/edit</url-pattern>
+        <url-pattern>/manager/vehicle-types/delete</url-pattern>
     </servlet-mapping>
     <servlet>
         <servlet-name>TicketsControllerManager</servlet-name>
@@ -174,6 +179,7 @@
         <url-pattern>/staff/monthlycard</url-pattern>
         <url-pattern>/staff/monthlycard/create</url-pattern>
         <url-pattern>/staff/monthlycard/update</url-pattern>
+        <url-pattern>/staff/monthlycard/delete</url-pattern>
     </servlet-mapping>
     <servlet>
         <servlet-name>TicketsControllerStaff</servlet-name>
@@ -205,6 +211,7 @@
         <url-pattern>/staff/violations</url-pattern>
         <url-pattern>/staff/violations/update</url-pattern>
         <url-pattern>/staff/violations/create</url-pattern>
+        <url-pattern>/staff/violations/delete</url-pattern>
     </servlet-mapping>
     <servlet>
         <servlet-name>CustomersControllerStaff</servlet-name>
@@ -213,5 +220,8 @@
     <servlet-mapping>
         <servlet-name>CustomersControllerStaff</servlet-name>
         <url-pattern>/staff/customers</url-pattern>
+        <url-pattern>/staff/customers/create</url-pattern>
+        <url-pattern>/staff/customers/edit</url-pattern>
+        <url-pattern>/staff/customers/delete</url-pattern>
     </servlet-mapping>
 </web-app>

@@ -87,7 +87,6 @@ public class ViolationDAO extends DBContext {
         return false;
     }
 
-    // THÊM MỚI: Cập nhật toàn bộ thông tin cho phép sửa
     public boolean update(Violation v) {
         String sql = "UPDATE Violation SET reason = ?, fine = ?, status = ? WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -114,7 +113,6 @@ public class ViolationDAO extends DBContext {
         return false;
     }
 
-    // THÊM MỚI: Xóa vi phạm
     public boolean delete(int id) {
         String sql = "DELETE FROM Violation WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {

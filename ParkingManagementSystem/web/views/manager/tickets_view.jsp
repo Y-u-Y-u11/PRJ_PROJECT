@@ -13,7 +13,7 @@
                     <tr><th>Biển số:</th><td>${ticket.plateNumber}</td></tr>
                     <tr><th>Trạng thái:</th><td><span class="badge bg-primary">${ticket.status}</span></td></tr>
                     <tr><th>ID Khách hàng:</th><td>${ticket.customerID}</td></tr>
-                    <tr><th>ID Ô đỗ:</th><td>${ticket.slotID}</td></tr>
+                    <tr><th>ID ô đỗ:</th><td>${ticket.slotID}</td></tr>
                     <tr><th>T/G Vào:</th><td>${ticket.checkInTime}</td></tr>
                     <tr><th>T/G Ra:</th><td>${ticket.checkOutTime}</td></tr>
                 </table>

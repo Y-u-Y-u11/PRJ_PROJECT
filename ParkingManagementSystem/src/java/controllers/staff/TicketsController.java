@@ -4,11 +4,8 @@ import dal.ParkingSlotDAO;
 import dal.ParkingTicketDAO;
 import dal.VehicleTypeDAO;
 import dal.PaymentTransactionDAO;
-
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,15 +16,11 @@ import model.PaymentTransaction;
 import model.Users;
 import model.VehicleType;
 
-// Đã gỡ bỏ @WebServlet vì dự án sử dụng cấu hình qua file web.xml
 public class TicketsController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        // CÁCH LẤY URL AN TOÀN: Bỏ phần contextPath đi để lấy chính xác path phía sau
-        // Ví dụ: /ParkingManagementSystem/staff/tickets/checkin -> /staff/tickets/checkin
         String action = request.getRequestURI().substring(request.getContextPath().length());
 
         ParkingSlotDAO sDao = new ParkingSlotDAO();
@@ -35,9 +28,7 @@ public class TicketsController extends HttpServlet {
         ParkingTicketDAO tDao = new ParkingTicketDAO();
         PaymentTransactionDAO ptDao = new PaymentTransactionDAO();
 
-        // =========================
         // DANH SÁCH TICKETS
-        // =========================
         if ("/staff/tickets".equals(action) || "/staff/tickets/".equals(action)) {
 
             String keyword = request.getParameter("keyword");
@@ -48,16 +39,13 @@ public class TicketsController extends HttpServlet {
             // Lấy toàn bộ vé từ DB dựa trên keyword và status
             List<ParkingTicket> list = tDao.getAll(keyword, status);
 
-
             request.setAttribute("tickets", list);
             request.setAttribute("keyword", keyword);
             request.setAttribute("statusFilter", status);
             // Forward sang tickets_list.jsp
             request.getRequestDispatcher("/views/staff/tickets_list.jsp").forward(request, response);
 
-            // =========================
             // VIEW CHI TIẾT
-            // =========================
         } else if ("/staff/tickets/view".equals(action)) {
 
             int id = Integer.parseInt(request.getParameter("id"));
@@ -68,9 +56,7 @@ public class TicketsController extends HttpServlet {
             request.setAttribute("payments", payments);
             request.getRequestDispatcher("/views/staff/tickets_view.jsp").forward(request, response);
 
-            // =========================
             // CHECK-IN
-            // =========================
         } else if ("/staff/tickets/checkin".equals(action)) {
 
             List<ParkingSlot> availableSlots = sDao.getAvailableSlots();
@@ -80,9 +66,7 @@ public class TicketsController extends HttpServlet {
             request.setAttribute("vehicleTypes", vehicleTypes);
             request.getRequestDispatcher("/views/staff/tickets_checkin.jsp").forward(request, response);
 
-            // =========================
             // SEARCH (đang gửi xe)
-            // =========================
         } else if ("/staff/tickets/search".equals(action)) {
 
             String keyword = request.getParameter("keyword");
@@ -95,9 +79,7 @@ public class TicketsController extends HttpServlet {
 
             request.getRequestDispatcher("/views/staff/tickets_search.jsp").forward(request, response);
 
-            // =========================
             // CHECK-OUT
-            // =========================
         } else if ("/staff/tickets/checkout".equals(action)) {
 
             String ticketCode = request.getParameter("ticketCode");
@@ -117,9 +99,9 @@ public class TicketsController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Lấy URL an toàn tương tự doGet
+        // Lấy URL 
         String action = request.getRequestURI().substring(request.getContextPath().length());
-        
+
         ParkingTicketDAO tDao = new ParkingTicketDAO();
         Users currentUser = (Users) request.getSession().getAttribute("LOGIN_USER");
 
@@ -135,8 +117,8 @@ public class TicketsController extends HttpServlet {
             }
 
             int vehicleTypeId = Integer.parseInt(request.getParameter("vehicleTypeId"));
-            
-            // Xử lý an toàn cho slotId (có thể bị rỗng nếu không truyền lên)
+
+            // Xử lý cho slotId
             String slotIdStr = request.getParameter("slotId");
             Integer slotId = (slotIdStr != null && !slotIdStr.isEmpty()) ? Integer.parseInt(slotIdStr) : null;
 
@@ -161,10 +143,10 @@ public class TicketsController extends HttpServlet {
             ParkingTicket createdTicket = tDao.create(ticket);
 
             if (createdTicket != null) {
-                // Tích hợp logic In vé: Forward sang ticket thay vì sendRedirect
+                // In vé
                 VehicleTypeDAO vDao = new VehicleTypeDAO();
                 VehicleType vehicleType = vDao.getById(vehicleTypeId);
-                
+
                 request.setAttribute("ticket", createdTicket);
                 request.setAttribute("vehicleType", vehicleType);
                 request.getRequestDispatcher("/views/staff/ticket.jsp").forward(request, response);

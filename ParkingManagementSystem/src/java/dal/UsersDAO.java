@@ -9,11 +9,11 @@ import model.Users;
 
 public class UsersDAO extends DBContext {
 
-    public Users authenticate(String username, String passwordHash) {
-        String sql = "SELECT * FROM Users WHERE username = ? AND passwordHash = ? AND status = 'active'";
+    public Users authenticate(String username, String password) {
+        String sql = "SELECT * FROM Users WHERE username = ? AND password = ? AND status = 'active'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, username);
-            ps.setString(2, passwordHash);
+            ps.setString(2, password);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return mapRow(rs);
@@ -70,10 +70,10 @@ public class UsersDAO extends DBContext {
     }
 
     public boolean createStaff(Users user) {
-        String sql = "INSERT INTO Users (username, passwordHash, fullName, role, status) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (username, password, fullName, role, status) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, user.getUsername());
-            ps.setString(2, user.getPasswordHash());
+            ps.setString(2, user.getPassword());
             ps.setString(3, user.getFullName());
             ps.setString(4, "staff");
             ps.setString(5, user.getStatus());
@@ -108,10 +108,22 @@ public class UsersDAO extends DBContext {
         return false;
     }
     
-    public boolean changePassword(int id, String newPasswordHash) {
-        String sql = "UPDATE Users SET passwordHash = ? WHERE id = ?";
+    public boolean changePassword(int id, String newPassword) {
+        String sql = "UPDATE Users SET password = ? WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, newPasswordHash);
+            ps.setString(1, newPassword);
+            ps.setInt(2, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean updateProfile(int id, String fullName) {
+        String sql = "UPDATE Users SET fullName = ? WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, fullName);
             ps.setInt(2, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -124,7 +136,7 @@ public class UsersDAO extends DBContext {
         return new Users(
                 rs.getInt("id"),
                 rs.getString("username"),
-                rs.getString("passwordHash"),
+                rs.getString("password"),
                 rs.getString("fullName"),
                 rs.getString("role"),
                 rs.getString("status")

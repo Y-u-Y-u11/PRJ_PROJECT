@@ -84,10 +84,7 @@
                             <td>${v.createdAt}</td>
                             <td>
                                 <a href="${pageContext.request.contextPath}/staff/violations/update?id=${v.id}" class="btn btn-sm btn-outline-warning">Sửa</a>
-                                <form action="${pageContext.request.contextPath}/staff/violations/delete" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa biên bản vi phạm này?');">
-                                    <input type="hidden" name="id" value="${v.id}">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
-                                </form>
+                                <a href="${pageContext.request.contextPath}/staff/violations/delete?id=${v.id}" class="btn btn-sm btn-outline-danger">Xóa</a>
                             </td>
                         </tr>
                     </c:forEach>

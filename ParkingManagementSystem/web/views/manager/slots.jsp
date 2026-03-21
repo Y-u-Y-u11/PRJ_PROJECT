@@ -3,9 +3,16 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Quản lý Ô đỗ xe</h2>
-    <a href="${pageContext.request.contextPath}/manager/slots/create" class="btn btn-primary">Thêm Ô đỗ</a>
+    <h2>Quản lý ô đỗ xe</h2>
+    <a href="${pageContext.request.contextPath}/manager/slots/create" class="btn btn-primary">Thêm ô đỗ</a>
 </div>
+
+<c:if test="${param.success eq 'deleted'}">
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        Xóa ô đỗ xe thành công!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</c:if>
 
 <div class="card shadow-sm">
     <div class="card-body">
@@ -24,6 +31,7 @@
                         <td><strong>${s.code}</strong></td>
                         <td>
                             <a href="${pageContext.request.contextPath}/manager/slots/update?id=${s.id}" class="btn btn-sm btn-outline-secondary">Sửa</a>
+                            <a href="${pageContext.request.contextPath}/manager/slots/delete?id=${s.id}" class="btn btn-sm btn-outline-danger">Xóa</a>
                         </td>
                     </tr>
                 </c:forEach>

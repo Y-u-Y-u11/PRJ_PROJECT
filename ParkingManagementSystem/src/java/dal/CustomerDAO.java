@@ -50,11 +50,20 @@ public class CustomerDAO extends DBContext {
 
     public boolean create(Customer customer) {
         String sql = "INSERT INTO Customer (name, phone) VALUES (?, ?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, customer.getName());
             ps.setString(2, customer.getPhone());
-            return ps.executeUpdate() > 0;
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        customer.setId(rs.getInt(1));
+                    }
+                }
+                return true;
+            }
         } catch (SQLException e) {
+            System.err.println("Error in CustomerDAO.create: " + e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -69,6 +78,54 @@ public class CustomerDAO extends DBContext {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        return false;
+    }
+    public boolean delete(int id) {
+        // Check for active tickets/cards
+        String checkSql = "SELECT 1 FROM ParkingTicket WHERE customerID = ? AND status = 'Parking'";
+        String checkCardSql = "SELECT 1 FROM MonthlyCard WHERE customerID = ? AND status = 'active'";
+        
+        try (PreparedStatement ps1 = connection.prepareStatement(checkSql);
+             PreparedStatement ps2 = connection.prepareStatement(checkCardSql)) {
+            ps1.setInt(1, id);
+            ps2.setInt(1, id);
+            try (ResultSet rs1 = ps1.executeQuery();
+                 ResultSet rs2 = ps2.executeQuery()) {
+                if (rs1.next() || rs2.next()) {
+                    return false; // Active references exist
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        // Nullify references
+        String up1 = "UPDATE ParkingTicket SET customerID = NULL WHERE customerID = ?";
+        String up2 = "UPDATE MonthlyCard SET customerID = NULL WHERE customerID = ?";
+        String up3 = "UPDATE Violation SET customerID = NULL WHERE customerID = ?";
+        String del = "DELETE FROM Customer WHERE id = ?";
+
+        try {
+            connection.setAutoCommit(false);
+            try (PreparedStatement p1 = connection.prepareStatement(up1);
+                 PreparedStatement p2 = connection.prepareStatement(up2);
+                 PreparedStatement p3 = connection.prepareStatement(up3);
+                 PreparedStatement d = connection.prepareStatement(del)) {
+                p1.setInt(1, id); p1.executeUpdate();
+                p2.setInt(1, id); p2.executeUpdate();
+                p3.setInt(1, id); p3.executeUpdate();
+                d.setInt(1, id);
+                int affected = d.executeUpdate();
+                connection.commit();
+                return affected > 0;
+            }
+        } catch (SQLException e) {
+            try { connection.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            e.printStackTrace();
+        } finally {
+            try { connection.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
         }
         return false;
     }

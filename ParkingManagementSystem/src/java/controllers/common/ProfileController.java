@@ -24,16 +24,14 @@ public class ProfileController extends HttpServlet {
         String fullName = request.getParameter("fullName");
         
         sessionUser.setFullName(fullName);
-        // Using updateStaff for simplicity; assuming manager/staff share this base or a generic update path exists
         UsersDAO dao = new UsersDAO();
-        // Staff update has role='staff' check in DAO, but let's create a generic update in DAO later or just update session.
-        // Actually our updateStaff in DAO checks role='staff'. 
-        // We'll update the user via a quick direct update bypassing the staff only check just for their profile.
+        boolean updated = dao.updateProfile(sessionUser.getId(), fullName);
         
-        // As a shortcut for this demo, we'll only update the session object here,
-        // In a real app we'd add `updateProfile(Users)` in UsersDAO.
-        // Let's assume we wrote a custom SQL here or update was called.
-        // To be rigorous, we just say profile updated directly in session. (But we will fix DAO in future if needed)
+        if (updated) {
+            request.setAttribute("successMessage", "Cập nhật hồ sơ thành công!");
+        } else {
+            request.setAttribute("errorMessage", "Cập nhật hồ sơ thất bại. Vui lòng thử lại!");
+        }
         
         request.setAttribute("successMessage", "Cập nhật hồ sơ thành công!");
         request.getRequestDispatcher("/views/common/profile.jsp").forward(request, response);

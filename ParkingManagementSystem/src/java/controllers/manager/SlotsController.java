@@ -26,6 +26,11 @@ public class SlotsController extends HttpServlet {
             ParkingSlot s = dao.getById(id);
             request.setAttribute("slot", s);
             request.getRequestDispatcher("/views/manager/slots_update.jsp").forward(request, response);
+        } else if ("/manager/slots/delete".equals(action)) {
+            int id = Integer.parseInt(request.getParameter("id"));
+            ParkingSlot s = dao.getById(id);
+            request.setAttribute("slot", s);
+            request.getRequestDispatcher("/views/manager/slots_delete_confirm.jsp").forward(request, response);
         } else if ("/manager/slots".equals(action)) {
             List<ParkingSlot> list = dao.getAll();
             request.setAttribute("slots", list);
@@ -46,10 +51,10 @@ public class SlotsController extends HttpServlet {
             
             ParkingSlot s = new ParkingSlot(0, code);
             if (dao.create(s)) {
-                auditDao.create(new AuditLog(0, currentUser.getId(), "CREATE", "ParkingSlot", 0, null, null, code, "Tạo Ô đỗ mới", null));
+                auditDao.create(new AuditLog(0, currentUser.getId(), "CREATE", "ParkingSlot", 0, null, null, code, "Tạo ô đỗ mới", null));
                 response.sendRedirect(request.getContextPath() + "/manager/slots");
             } else {
-                request.setAttribute("error", "Lỗi tạo Ô đỗ (có thể trùng mã).");
+                request.setAttribute("error", "Lỗi tạo ô đỗ (có thể trùng mã).");
                 request.getRequestDispatcher("/views/manager/slots_create.jsp").forward(request, response);
             }
         } else if ("/manager/slots/update".equals(action)) {
@@ -58,12 +63,23 @@ public class SlotsController extends HttpServlet {
             
             ParkingSlot s = new ParkingSlot(id, code);
             if (dao.update(s)) {
-                auditDao.create(new AuditLog(0, currentUser.getId(), "UPDATE", "ParkingSlot", id, null, null, code, "Cập nhật mã Ô đỗ", null));
+                auditDao.create(new AuditLog(0, currentUser.getId(), "UPDATE", "ParkingSlot", id, null, null, code, "Cập nhật mã ô đỗ", null));
                 response.sendRedirect(request.getContextPath() + "/manager/slots");
             } else {
                 request.setAttribute("error", "Lỗi cập nhật.");
                 request.setAttribute("slot", s);
                 request.getRequestDispatcher("/views/manager/slots_update.jsp").forward(request, response);
+            }
+        } else if ("/manager/slots/delete".equals(action)) {
+            int id = Integer.parseInt(request.getParameter("id"));
+            ParkingSlot s = dao.getById(id);
+            if (dao.delete(id)) {
+                auditDao.create(new AuditLog(0, currentUser.getId(), "DELETE", "ParkingSlot", id, null, null, s.getCode(), "Xóa ô đỗ", null));
+                response.sendRedirect(request.getContextPath() + "/manager/slots?success=deleted");
+            } else {
+                request.setAttribute("error", "Không thể xóa ô đỗ. Ô đỗ có thể đang được sử dụng.");
+                request.setAttribute("slot", s);
+                request.getRequestDispatcher("/views/manager/slots_delete_confirm.jsp").forward(request, response);
             }
         }
     }

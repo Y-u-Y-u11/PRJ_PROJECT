@@ -25,6 +25,11 @@ public class UsersController extends HttpServlet {
             Users u = dao.getById(id);
             request.setAttribute("staff", u);
             request.getRequestDispatcher("/views/manager/users_update.jsp").forward(request, response);
+        } else if ("/manager/users/delete".equals(action)) {
+            int id = Integer.parseInt(request.getParameter("id"));
+            Users u = dao.getById(id);
+            request.setAttribute("staff", u);
+            request.getRequestDispatcher("/views/manager/user_delete_confirm.jsp").forward(request, response);
         } else if ("/manager/users".equals(action)) {
             List<Users> list = dao.getAllStaffs();
             request.setAttribute("staffList", list);
@@ -71,11 +76,16 @@ public class UsersController extends HttpServlet {
                 request.getRequestDispatcher("/views/manager/users_update.jsp").forward(request, response);
             }
         } else if ("/manager/users/delete".equals(action)) {
-            // Soft delete recommended, or hard delete
             int id = Integer.parseInt(request.getParameter("id"));
-            dao.deleteStaff(id);
-            auditDao.create(new AuditLog(0, currentUser.getId(), "DELETE", "Users", id, null, null, null, "Xóa nhân viên", null));
-            response.sendRedirect(request.getContextPath() + "/manager/users");
+            Users u = dao.getById(id);
+            if (dao.deleteStaff(id)) {
+                auditDao.create(new AuditLog(0, currentUser.getId(), "DELETE", "Users", id, null, null, u.getUsername(), "Xóa nhân viên", null));
+                response.sendRedirect(request.getContextPath() + "/manager/users?success=deleted");
+            } else {
+                request.setAttribute("error", "Không thể xóa nhân viên. Tài khoản có thể đang có dữ liệu liên quan.");
+                request.setAttribute("staff", u);
+                request.getRequestDispatcher("/views/manager/user_delete_confirm.jsp").forward(request, response);
+            }
         }
     }
 }

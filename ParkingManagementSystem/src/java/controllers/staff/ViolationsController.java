@@ -50,6 +50,15 @@ public class ViolationsController extends HttpServlet {
             } else {
                 response.sendRedirect(request.getContextPath() + "/staff/violations");
             }
+        } else if ("/staff/violations/delete".equals(action)) {
+            String idParam = request.getParameter("id");
+            if (idParam != null && !idParam.isEmpty()) {
+                Violation v = vDao.getById(Integer.parseInt(idParam));
+                request.setAttribute("violation", v);
+                request.getRequestDispatcher("/views/staff/violation_delete_confirm.jsp").forward(request, response);
+            } else {
+                response.sendRedirect(request.getContextPath() + "/staff/violations");
+            }
         }
     }
 
@@ -127,7 +136,10 @@ public class ViolationsController extends HttpServlet {
             if (vDao.delete(id)) {
                 response.sendRedirect(request.getContextPath() + "/staff/violations?msg=delete_success");
             } else {
-                response.sendRedirect(request.getContextPath() + "/staff/violations?msg=delete_fail");
+                Violation v = vDao.getById(id);
+                request.setAttribute("violation", v);
+                request.setAttribute("error", "Không thể xóa biên bản này. Vui lòng kiểm tra lại.");
+                request.getRequestDispatcher("/views/staff/violation_delete_confirm.jsp").forward(request, response);
             }
         }
     }

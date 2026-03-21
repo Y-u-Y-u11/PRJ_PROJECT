@@ -3,17 +3,17 @@ package model;
 public class Users {
     private int id;
     private String username;
-    private String passwordHash;
+    private String password;
     private String fullName;
     private String role;
     private String status;
 
     public Users() {}
 
-    public Users(int id, String username, String passwordHash, String fullName, String role, String status) {
+    public Users(int id, String username, String password, String fullName, String role, String status) {
         this.id = id;
         this.username = username;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.fullName = fullName;
         this.role = role;
         this.status = status;
@@ -25,8 +25,8 @@ public class Users {
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
     
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
     
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }

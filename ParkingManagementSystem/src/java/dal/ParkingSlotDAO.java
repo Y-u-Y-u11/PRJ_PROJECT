@@ -94,4 +94,53 @@ public class ParkingSlotDAO extends DBContext {
         }
         return false;
     }
+
+    public boolean delete(int id) {
+        // Check if occupied
+        String checkSql = "SELECT 1 FROM ParkingTicket WHERE slotID = ? AND status = 'Parking'";
+        try (PreparedStatement psCheck = connection.prepareStatement(checkSql)) {
+            psCheck.setInt(1, id);
+            try (ResultSet rs = psCheck.executeQuery()) {
+                if (rs.next()) {
+                    return false; // Slot is occupied, cannot delete
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        // Nullify references in ParkingTicket (historical tickets)
+        String updateSql = "UPDATE ParkingTicket SET slotID = NULL WHERE slotID = ?";
+        // Delete from ParkingSlot
+        String deleteSql = "DELETE FROM ParkingSlot WHERE id = ?";
+        
+        try {
+            connection.setAutoCommit(false);
+            try (PreparedStatement psUpdate = connection.prepareStatement(updateSql)) {
+                psUpdate.setInt(1, id);
+                psUpdate.executeUpdate();
+            }
+            try (PreparedStatement psDelete = connection.prepareStatement(deleteSql)) {
+                psDelete.setInt(1, id);
+                int affectedRows = psDelete.executeUpdate();
+                connection.commit();
+                return affectedRows > 0;
+            }
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
 }

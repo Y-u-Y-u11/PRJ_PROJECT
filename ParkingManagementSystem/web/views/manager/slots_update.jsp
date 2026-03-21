@@ -6,7 +6,7 @@
     <div class="col-md-6">
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Cập nhật Ô đỗ xe</h5>
+                <h5 class="mb-0">Cập nhật ô đỗ xe</h5>
             </div>
             <div class="card-body">
                 <c:if test="${not empty error}">
@@ -16,7 +16,7 @@
                 <form action="${pageContext.request.contextPath}/manager/slots/update" method="POST">
                     <input type="hidden" name="id" value="${slot.id}">
                     <div class="mb-3">
-                        <label class="form-label">Mã Ô đỗ mới</label>
+                        <label class="form-label">Mã ô đỗ mới</label>
                         <input type="text" class="form-control" name="code" value="${slot.code}" required autofocus>
                     </div>
                     <button type="submit" class="btn btn-primary">Lưu thay đổi</button>

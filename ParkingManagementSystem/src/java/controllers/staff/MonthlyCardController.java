@@ -54,6 +54,23 @@ public class MonthlyCardController extends HttpServlet {
                 }
                 response.sendRedirect(request.getContextPath() + "/staff/monthlycard");
             } 
+            else if (uri.endsWith("/delete")) {
+                String idParam = request.getParameter("id");
+                if (idParam != null && !idParam.isEmpty()) {
+                    int id = Integer.parseInt(idParam);
+                    List<MonthlyCard> cards = dao.getCardsWithSearchAndSort(null, "cardID", "asc");
+                    MonthlyCard cardToDelete = cards.stream()
+                            .filter(c -> c.getCardID() == id)
+                            .findFirst().orElse(null);
+                    
+                    if (cardToDelete != null) {
+                        request.setAttribute("card", cardToDelete);
+                        request.getRequestDispatcher("/views/staff/monthlycard_delete_confirm.jsp").forward(request, response);
+                        return;
+                    }
+                }
+                response.sendRedirect(request.getContextPath() + "/staff/monthlycard");
+            }
             else {
                 String search = request.getParameter("search");
                 String sort = request.getParameter("sort");
@@ -100,7 +117,7 @@ public class MonthlyCardController extends HttpServlet {
                 String paymentMethod = request.getParameter("paymentMethod"); 
                 if (paymentMethod == null || paymentMethod.isEmpty()) paymentMethod = "Cash";
                 
-                // --- KIỂM TRA BẢNG GIÁ CỦA LOẠI XE TRƯỚC ---
+                // Check vehicle type pricing before registration
                 VehicleType vt = vtDao.getById(vehicleTypeID);
                 if (vt == null) {
                     session.setAttribute("error", "Lỗi: Không tìm thấy loại xe hợp lệ trong hệ thống.");
@@ -132,7 +149,7 @@ public class MonthlyCardController extends HttpServlet {
                 newCard.setEndDate(endDateStr);
                 newCard.setStatus("Active");
 
-                // KIỂM TRA QUÁ TRÌNH LƯU DB TRƯỚC KHI THU TIỀN
+                // Verify DB persistence before processing payment
                 boolean isCreated = dao.createMonthlyCard(newCard);
                 
                 if (isCreated) {
@@ -163,7 +180,7 @@ public class MonthlyCardController extends HttpServlet {
                     if (months <= 0) months = 1;
                 }
                 
-                // --- KIỂM TRA BẢNG GIÁ CỦA LOẠI XE TRƯỚC ---
+                // Check vehicle type pricing before update
                 VehicleType vt = vtDao.getById(vehicleTypeID);
                 if (vt == null) {
                     session.setAttribute("error", "Lỗi: Không tìm thấy loại xe hợp lệ trong hệ thống.");
@@ -204,10 +221,14 @@ public class MonthlyCardController extends HttpServlet {
                             
                     if (cardToDelete != null) {
                         if ("Active".equalsIgnoreCase(cardToDelete.getStatus())) {
-                            session.setAttribute("error", "Lỗi: Không thể xóa thẻ đang trong trạng thái Hoạt động!");
+                            request.setAttribute("error", "Lỗi: Không thể xóa thẻ đang trong trạng thái Hoạt động!");
+                            request.setAttribute("card", cardToDelete);
+                            request.getRequestDispatcher("/views/staff/monthlycard_delete_confirm.jsp").forward(request, response);
+                            return;
                         } else {
                             dao.deleteMonthlyCard(id);
-                            session.setAttribute("message", "Xóa thẻ tháng thành công!");
+                            response.sendRedirect(request.getContextPath() + "/staff/monthlycard?success=deleted");
+                            return;
                         }
                     } else {
                         session.setAttribute("error", "Không tìm thấy thẻ để xóa!");

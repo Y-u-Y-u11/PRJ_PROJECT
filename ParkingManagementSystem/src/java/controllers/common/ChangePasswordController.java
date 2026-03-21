@@ -26,8 +26,7 @@ public class ChangePasswordController extends HttpServlet {
         String newPassword = request.getParameter("newPassword");
         String confirmPassword = request.getParameter("confirmPassword");
         
-        if (!user.getPasswordHash().equals(currentPassword)) {
-            // Note: In real production, compare hashes
+        if (!user.getPassword().equals(currentPassword)) {
             request.setAttribute("error", "Mật khẩu hiện tại không đúng.");
             request.getRequestDispatcher("/views/common/changePassword.jsp").forward(request, response);
             return;
@@ -40,8 +39,8 @@ public class ChangePasswordController extends HttpServlet {
         }
         
         UsersDAO dao = new UsersDAO();
-        if (dao.changePassword(user.getId(), newPassword)) { // storing plain text assuming plain text configuration
-            user.setPasswordHash(newPassword);
+        if (dao.changePassword(user.getId(), newPassword)) {
+            user.setPassword(newPassword);
             request.setAttribute("success", "Đổi mật khẩu thành công!");
         } else {
             request.setAttribute("error", "Có lỗi xảy ra, vui lòng thử lại.");
