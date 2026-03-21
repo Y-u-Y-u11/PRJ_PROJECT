@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
-         version="5.0">
-
+<web-app version="5.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd">
+    <servlet-mapping>
+        <servlet-name>MonthlyCardController</servlet-name>
+        <url-pattern>/staff/monthlycard</url-pattern>
+    </servlet-mapping>
     <session-config>
         <session-timeout>30</session-timeout>
     </session-config>
-
     <!-- Filters -->
     <filter>
         <filter-name>AuthorizationFilter</filter-name>
@@ -17,12 +16,10 @@
         <filter-name>AuthorizationFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-
     <!-- Welcome File -->
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
-
     <!-- Error Pages -->
     <error-page>
         <error-code>404</error-code>
@@ -32,18 +29,20 @@
         <error-code>403</error-code>
         <location>/error/403</location>
     </error-page>
-    
     <!-- Auth Controller -->
     <servlet>
         <servlet-name>AuthController</servlet-name>
         <servlet-class>controllers.auth.AuthController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>MonthlyCardController</servlet-name>
+        <servlet-class>controllers.staff.MonthlyCardController</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>AuthController</servlet-name>
         <url-pattern>/auth/login</url-pattern>
         <url-pattern>/auth/logout</url-pattern>
     </servlet-mapping>
-    
     <!-- Error Controller -->
     <servlet>
         <servlet-name>ErrorController</servlet-name>
@@ -54,7 +53,6 @@
         <url-pattern>/error/403</url-pattern>
         <url-pattern>/error/404</url-pattern>
     </servlet-mapping>
-
     <!-- Common Controllers -->
     <servlet>
         <servlet-name>ProfileController</servlet-name>
@@ -64,7 +62,6 @@
         <servlet-name>ProfileController</servlet-name>
         <url-pattern>/common/profile</url-pattern>
     </servlet-mapping>
-    
     <servlet>
         <servlet-name>ChangePasswordController</servlet-name>
         <servlet-class>controllers.common.ChangePasswordController</servlet-class>
@@ -73,7 +70,6 @@
         <servlet-name>ChangePasswordController</servlet-name>
         <url-pattern>/common/change-password</url-pattern>
     </servlet-mapping>
-
     <!-- Manager Controllers -->
     <servlet>
         <servlet-name>DashboardControllerManager</servlet-name>
@@ -83,7 +79,6 @@
         <servlet-name>DashboardControllerManager</servlet-name>
         <url-pattern>/manager/dashboard</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>UsersController</servlet-name>
         <servlet-class>controllers.manager.UsersController</servlet-class>
@@ -95,7 +90,6 @@
         <url-pattern>/manager/users/update</url-pattern>
         <url-pattern>/manager/users/delete</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>CustomersControllerManager</servlet-name>
         <servlet-class>controllers.manager.CustomersController</servlet-class>
@@ -105,7 +99,6 @@
         <url-pattern>/manager/customers</url-pattern>
         <url-pattern>/manager/customers/view</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>SlotsController</servlet-name>
         <servlet-class>controllers.manager.SlotsController</servlet-class>
@@ -116,7 +109,6 @@
         <url-pattern>/manager/slots/create</url-pattern>
         <url-pattern>/manager/slots/update</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>VehicleTypesController</servlet-name>
         <servlet-class>controllers.manager.VehicleTypesController</servlet-class>
@@ -127,7 +119,6 @@
         <url-pattern>/manager/vehicle-types/create</url-pattern>
         <url-pattern>/manager/vehicle-types/update</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>TicketsControllerManager</servlet-name>
         <servlet-class>controllers.manager.TicketsController</servlet-class>
@@ -137,7 +128,6 @@
         <url-pattern>/manager/tickets</url-pattern>
         <url-pattern>/manager/tickets/view</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>PaymentsControllerManager</servlet-name>
         <servlet-class>controllers.manager.PaymentsController</servlet-class>
@@ -147,7 +137,6 @@
         <url-pattern>/manager/payments</url-pattern>
         <url-pattern>/manager/payments/view</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>ViolationsControllerManager</servlet-name>
         <servlet-class>controllers.manager.ViolationsController</servlet-class>
@@ -157,7 +146,6 @@
         <url-pattern>/manager/violations</url-pattern>
         <url-pattern>/manager/violations/view</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>ReportsControllerManager</servlet-name>
         <servlet-class>controllers.manager.ReportsController</servlet-class>
@@ -168,7 +156,6 @@
         <url-pattern>/manager/reports/revenue</url-pattern>
         <url-pattern>/manager/reports/parking</url-pattern>
     </servlet-mapping>
-
     <!-- Staff Controllers -->
     <servlet>
         <servlet-name>DashboardControllerStaff</servlet-name>
@@ -178,7 +165,6 @@
         <servlet-name>DashboardControllerStaff</servlet-name>
         <url-pattern>/staff/dashboard</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>TicketsControllerStaff</servlet-name>
         <servlet-class>controllers.staff.TicketsController</servlet-class>
@@ -189,7 +175,6 @@
         <url-pattern>/staff/tickets/checkout</url-pattern>
         <url-pattern>/staff/tickets/search</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>PaymentsControllerStaff</servlet-name>
         <servlet-class>controllers.staff.PaymentsController</servlet-class>
@@ -198,7 +183,6 @@
         <servlet-name>PaymentsControllerStaff</servlet-name>
         <url-pattern>/staff/payments/process</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>ViolationsControllerStaff</servlet-name>
         <servlet-class>controllers.staff.ViolationsController</servlet-class>
@@ -207,7 +191,6 @@
         <servlet-name>ViolationsControllerStaff</servlet-name>
         <url-pattern>/staff/violations/create</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>CustomersControllerStaff</servlet-name>
         <servlet-class>controllers.staff.CustomersController</servlet-class>
@@ -216,5 +199,4 @@
         <servlet-name>CustomersControllerStaff</servlet-name>
         <url-pattern>/staff/customers</url-pattern>
     </servlet-mapping>
-
 </web-app>

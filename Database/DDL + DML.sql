@@ -1,14 +1,26 @@
 ﻿-- ======================================================
--- PARKING MANAGEMENT SYSTEM
+-- RESET & INITIALIZE PARKING DATABASE
 -- ======================================================
 
-CREATE DATABASE ParkingMS;
+USE master;
 GO
-USE ParkingMS;
+
+-- Xóa database nếu đang tồn tại để làm mới hoàn toàn
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N'Parking')
+BEGIN
+    ALTER DATABASE Parking SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE Parking;
+END
+GO
+
+CREATE DATABASE Parking;
+GO
+
+USE Parking;
 GO
 
 -- =========================
--- USERS
+-- 1. USERS
 -- =========================
 CREATE TABLE Users (
     id INT IDENTITY PRIMARY KEY,
@@ -19,17 +31,33 @@ CREATE TABLE Users (
     status VARCHAR(10) DEFAULT 'active' CHECK (status IN ('active','inactive'))
 );
 
-INSERT INTO Users VALUES
-('manager01','123',N'Nguyễn Văn Quản','manager','active'),
-('manager02','123',N'Lê Thị Điều Hành','manager','active'),
-('staff01','123',N'Trần Văn A','staff','active'),
-('staff02','123',N'Phạm Thị B','staff','active'),
-('staff03','123',N'Nguyễn Văn C','staff','inactive'),
-('staff04','123',N'Lê Văn D','staff','active');
-
+-- =========================
+-- 2. SHIFT
+-- =========================
+CREATE TABLE Shift (
+    id INT IDENTITY PRIMARY KEY,
+    shiftName NVARCHAR(50) NOT NULL,
+    startTime TIME NOT NULL,
+    endTime TIME NOT NULL,
+    breakMinutes INT NOT NULL DEFAULT 0
+);
 
 -- =========================
--- CUSTOMER
+-- 3. STAFF SHIFT ASSIGNMENT
+-- =========================
+CREATE TABLE StaffShiftAssignment (
+    id INT IDENTITY PRIMARY KEY,
+    staffID INT NOT NULL,
+    shiftID INT NOT NULL,
+    workDate DATE NOT NULL,
+    note NVARCHAR(255),
+    FOREIGN KEY (staffID) REFERENCES Users(id),
+    FOREIGN KEY (shiftID) REFERENCES Shift(id),
+    CONSTRAINT UQ_StaffShift UNIQUE (staffID, shiftID, workDate)
+);
+
+-- =========================
+-- 4. CUSTOMER
 -- =========================
 CREATE TABLE Customer (
     id INT IDENTITY PRIMARY KEY,
@@ -37,19 +65,8 @@ CREATE TABLE Customer (
     phone VARCHAR(20)
 );
 
-INSERT INTO Customer VALUES
-(N'Nguyễn Văn An','0901111111'),
-(N'Trần Thị Bình','0902222222'),
-(N'Lê Văn Cường','0903333333'),
-(N'Phạm Thị Dung','0904444444'),
-(N'Hoàng Văn Em','0905555555'),
-(N'Vũ Thị Giang','0906666666'),
-(N'Đặng Văn Hùng','0907777777'),
-(N'Bùi Thị Lan','0908888888');
-
-
 -- =========================
--- VEHICLE TYPE
+-- 5. VEHICLE TYPE
 -- =========================
 CREATE TABLE VehicleType (
     id INT IDENTITY PRIMARY KEY,
@@ -58,29 +75,34 @@ CREATE TABLE VehicleType (
     requiresPlate BIT DEFAULT 1
 );
 
-INSERT INTO VehicleType VALUES
-(N'Xe máy',5000,1),
-(N'Ô tô con',20000,1),
-(N'Xe tải',50000,1),
-(N'Xe đạp',2000,0);
-
+-- =========================
+-- 6. MONTHLY CARD
+-- =========================
+CREATE TABLE MonthlyCard (
+    cardID INT IDENTITY(1,1) PRIMARY KEY,
+    customerID INT NOT NULL,
+    vehicleTypeID INT NOT NULL,
+    plateNumber VARCHAR(20) NOT NULL,
+    startDate DATE NOT NULL,
+    endDate DATE NOT NULL,
+    price DECIMAL(10,2),
+    status VARCHAR(20) DEFAULT 'Active' 
+        CHECK (status IN ('Active', 'Expired', 'Cancelled')),
+    FOREIGN KEY (customerID) REFERENCES Customer(id),
+    FOREIGN KEY (vehicleTypeID) REFERENCES VehicleType(id),
+    CONSTRAINT CHK_CardDates CHECK (endDate >= startDate)
+);
 
 -- =========================
--- PARKING SLOT
+-- 7. PARKING SLOT
 -- =========================
 CREATE TABLE ParkingSlot (
     id INT IDENTITY PRIMARY KEY,
     code VARCHAR(10) UNIQUE NOT NULL
 );
 
-INSERT INTO ParkingSlot (code) VALUES
-('A01'),('A02'),('A03'),('A04'),('A05'),
-('B01'),('B02'),('B03'),('B04'),
-('C01'),('C02'),('C03');
-
-
 -- =========================
--- PARKING TICKET
+-- 8. PARKING TICKET
 -- =========================
 CREATE TABLE ParkingTicket (
     id INT IDENTITY PRIMARY KEY,
@@ -89,6 +111,7 @@ CREATE TABLE ParkingTicket (
     typeID INT NOT NULL,
     slotID INT NULL,
     customerID INT NULL,
+    monthlyCardID INT NULL, 
     checkInTime DATETIME2 DEFAULT SYSDATETIME(),
     checkOutTime DATETIME2 NULL,
     checkInStaffID INT,
@@ -98,28 +121,13 @@ CREATE TABLE ParkingTicket (
     FOREIGN KEY (typeID) REFERENCES VehicleType(id),
     FOREIGN KEY (slotID) REFERENCES ParkingSlot(id),
     FOREIGN KEY (customerID) REFERENCES Customer(id),
+    FOREIGN KEY (monthlyCardID) REFERENCES MonthlyCard(cardID),
     FOREIGN KEY (checkInStaffID) REFERENCES Users(id),
     FOREIGN KEY (checkOutStaffID) REFERENCES Users(id)
 );
 
-INSERT INTO ParkingTicket 
-(ticketCode,plateNumber,typeID,slotID,customerID,checkInTime,checkOutTime,checkInStaffID,checkOutStaffID,status)
-VALUES
-('TK001','51A-11111',1,1,1, DATEADD(HOUR,-2,SYSDATETIME()),NULL,3,NULL,'Parking'),
-('TK002','51A-22222',1,2,2, DATEADD(HOUR,-1,SYSDATETIME()),NULL,3,NULL,'Parking'),
-('TK003','30A-33333',2,6,3, DATEADD(HOUR,-3,SYSDATETIME()),NULL,4,NULL,'Parking'),
-('TK004',NULL,4,NULL,4, DATEADD(MINUTE,-30,SYSDATETIME()),NULL,4,NULL,'Parking'),
-
-('TK005','51B-55555',1,3,1, DATEADD(HOUR,-5,SYSDATETIME()),DATEADD(HOUR,-2,SYSDATETIME()),3,4,'Completed'),
-('TK006','51C-66666',2,7,2, DATEADD(DAY,-1,SYSDATETIME()),DATEADD(HOUR,-10,SYSDATETIME()),4,3,'Completed'),
-('TK007','30A-77777',2,8,3, DATEADD(HOUR,-8,SYSDATETIME()),DATEADD(HOUR,-1,SYSDATETIME()),3,4,'Completed'),
-
-('TK008','59A-88888',1,4,5, DATEADD(HOUR,-6,SYSDATETIME()),DATEADD(HOUR,-1,SYSDATETIME()),3,4,'Lost_Ticket'),
-('TK009','51D-99999',1,5,6, DATEADD(HOUR,-2,SYSDATETIME()),NULL,4,NULL,'Voided');
-
-
 -- =========================
--- PAYMENT
+-- 9. PAYMENT TRANSACTION
 -- =========================
 CREATE TABLE PaymentTransaction (
     id INT IDENTITY PRIMARY KEY,
@@ -132,18 +140,8 @@ CREATE TABLE PaymentTransaction (
     FOREIGN KEY (ticketID) REFERENCES ParkingTicket(id)
 );
 
-INSERT INTO PaymentTransaction VALUES
-(5,15000,'Cash','Success',NULL,DEFAULT),
-(6,40000,'QR','Success','QR001',DEFAULT),
-(7,60000,'Card','Success','CARD001',DEFAULT),
-(8,20000,'Cash','Success',NULL,DEFAULT),
-(8,10000,'QR','Success','QR002',DEFAULT),
-(7,60000,'QR','Failed','QR_FAIL',DEFAULT),
-(7,60000,'QR','Reversed','QR_REV',DEFAULT);
-
-
 -- =========================
--- VIOLATION
+-- 10. VIOLATION
 -- =========================
 CREATE TABLE Violation (
     id INT IDENTITY PRIMARY KEY,
@@ -160,16 +158,8 @@ CREATE TABLE Violation (
     CHECK (ticketID IS NOT NULL OR customerID IS NOT NULL)
 );
 
-INSERT INTO Violation VALUES
-(8,NULL,N'Mất vé',20000,'Paid',DEFAULT),
-(3,NULL,N'Đỗ sai vị trí',10000,'Unpaid',DEFAULT),
-(NULL,1,N'Nợ phí nhiều lần',50000,'Unpaid',DEFAULT),
-(NULL,2,N'Gây mất trật tự',30000,'Paid',DEFAULT),
-(2,2,N'Đỗ quá thời gian',15000,'Unpaid',DEFAULT);
-
-
 -- =========================
--- AUDIT LOG
+-- 11. AUDIT LOG
 -- =========================
 CREATE TABLE AuditLog (
     id INT IDENTITY PRIMARY KEY,
@@ -186,28 +176,84 @@ CREATE TABLE AuditLog (
     FOREIGN KEY (staffID) REFERENCES Users(id)
 );
 
-INSERT INTO AuditLog VALUES
-(3,'CREATE','ParkingTicket',1,NULL,NULL,'New ticket',N'Check-in xe',DEFAULT),
-(4,'UPDATE','ParkingTicket',5,'status','Parking','Completed',N'Check-out',DEFAULT),
-(3,'UPDATE','Violation',2,'status','Unpaid','Paid',N'Đã thanh toán',DEFAULT),
-(4,'VOID','ParkingTicket',9,'status','Parking','Voided',N'Hủy vé',DEFAULT),
-(3,'OVERRIDE','PaymentTransaction',7,'status','Failed','Success',N'Sửa lỗi',DEFAULT);
+-- ======================================================
+-- DATA INSERTION
+-- ======================================================
 
+-- 1. Users
+INSERT INTO Users (username, passwordHash, fullName, role, status) VALUES
+('admin', '123', N'Nguyễn Quản Lý', 'manager', 'active'),
+('staff1', '123', N'Trần Văn Tú', 'staff', 'active'),
+('staff2', '123', N'Lê Thị Lan', 'staff', 'active'),
+('staff3', '123', N'Phạm Việt Hùng', 'staff', 'active'),
+('staff4', '123', N'Đỗ Văn Nghỉ', 'staff', 'inactive');
 
--- =========================
--- REPORT
--- =========================
-CREATE TABLE Report (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    reportType VARCHAR(50) NOT NULL, 
-    generatedDate DATETIME DEFAULT GETDATE(),
-    totalRevenue DECIMAL(18,2) NULL,
-    totalSlots INT NULL,
-    occupiedSlots INT NULL
-);
+-- 2. Shift
+INSERT INTO Shift (shiftName, startTime, endTime, breakMinutes) VALUES
+(N'Ca Sáng', '06:00:00', '14:00:00', 30),
+(N'Ca Chiều', '14:00:00', '22:00:00', 30),
+(N'Ca Đêm', '22:00:00', '06:00:00', 60);
 
-INSERT INTO Report (reportType, totalRevenue) VALUES ('REVENUE', 0);
-INSERT INTO Report (reportType, totalSlots, occupiedSlots) VALUES ('PARKING_STATUS', 0, 0);
+-- 3. StaffShiftAssignment
+INSERT INTO StaffShiftAssignment (staffID, shiftID, workDate, note) VALUES
+(2, 1, CAST(GETDATE() AS DATE), N'Trực cổng A'),
+(3, 2, CAST(GETDATE() AS DATE), N'Trực cổng B'),
+(4, 3, CAST(GETDATE() AS DATE), N'Tuần tra bãi xe');
 
+-- 4. VehicleType
+INSERT INTO VehicleType (name, currentPrice, requiresPlate) VALUES 
+(N'Xe đạp', 2000, 0),
+(N'Xe máy', 5000, 1),
+(N'Ô tô con', 20000, 1),
+(N'Xe tải nhẹ', 50000, 1);
+
+-- 5. Customer
+INSERT INTO Customer (name, phone) VALUES 
+(N'Nguyễn Văn An', '0901234567'),
+(N'Trần Thị Bình', '0912345678'),
+(N'Lê Văn Cường', '0987654321'),
+(N'Phạm Minh Đức', '0933445566'),
+(N'Hoàng Diệu Linh', '0977889900');
+
+-- 6. MonthlyCard
+INSERT INTO MonthlyCard (customerID, vehicleTypeID, plateNumber, startDate, endDate, price, status) VALUES
+(1, 2, '29-A1 12345', '2024-01-01', '2024-12-31', 150000, 'Active'),
+(2, 3, '30-H 555.66', '2024-03-01', '2024-04-01', 1200000, 'Expired'),
+(3, 2, '51-F1 999.99', '2024-03-15', '2024-04-15', 150000, 'Active');
+
+-- 7. ParkingSlot
+INSERT INTO ParkingSlot (code) VALUES 
+('A01'), ('A02'), ('A03'), ('A04'), ('A05'),
+('B01'), ('B02'), ('B03'), ('B04'), ('B05'),
+('C01'), ('C02');
+
+-- 8. ParkingTicket
+-- IDs: 1, 2, 3
+INSERT INTO ParkingTicket (ticketCode, plateNumber, typeID, slotID, customerID, monthlyCardID, checkInTime, checkInStaffID, status) VALUES
+('TK-001', '29-A1 12345', 2, 1, 1, 1, DATEADD(HOUR, -5, SYSDATETIME()), 2, 'Parking'),
+('TK-002', '30-L 112.23', 3, 6, NULL, NULL, DATEADD(HOUR, -3, SYSDATETIME()), 3, 'Parking'),
+('TK-003', NULL, 1, NULL, NULL, NULL, DATEADD(MINUTE, -45, SYSDATETIME()), 2, 'Parking');
+
+-- IDs: 4, 5
+INSERT INTO ParkingTicket (ticketCode, plateNumber, typeID, slotID, customerID, checkInTime, checkOutTime, checkInStaffID, checkOutStaffID, status) VALUES
+('TK-004', '51-G 888.88', 3, 7, 4, DATEADD(DAY, -1, SYSDATETIME()), DATEADD(HOUR, -2, SYSDATETIME()), 2, 3, 'Completed'),
+('TK-005', '19-K1 444.55', 2, 2, NULL, DATEADD(HOUR, -10, SYSDATETIME()), DATEADD(HOUR, -1, SYSDATETIME()), 4, 3, 'Completed');
+
+-- 9. PaymentTransaction (Sử dụng ticketID từ 1-5)
+INSERT INTO PaymentTransaction (ticketID, amount, method, status, referenceCode, paidAt) VALUES
+(4, 40000, 'QR', 'Success', 'QR001', DEFAULT),
+(5, 5000, 'Cash', 'Success', NULL, DEFAULT),
+(4, 40000, 'QR', 'Failed', 'QR_FAIL', DEFAULT);
+
+-- 10. Violation (Sử dụng ticketID từ 1-5)
+INSERT INTO Violation (ticketID, customerID, reason, fine, status, createdAt) VALUES
+(4, NULL, N'Mất vé', 20000, 'Paid', DEFAULT),
+(1, NULL, N'Đỗ sai vị trí', 10000, 'Unpaid', DEFAULT),
+(NULL, 1, N'Nợ phí nhiều lần', 50000, 'Unpaid', DEFAULT);
+
+-- 11. AuditLog
+INSERT INTO AuditLog (staffID, actionType, tableName, recordID, columnName, oldValue, newValue, reason) VALUES
+(1, 'CREATE', 'MonthlyCard', 1, NULL, NULL, 'New Card', N'Đăng ký thẻ tháng mới'),
+(3, 'UPDATE', 'ParkingTicket', 4, 'status', 'Parking', 'Completed', N'Khách ra bãi');
 
 GO
