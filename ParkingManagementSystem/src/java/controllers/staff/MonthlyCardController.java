@@ -23,40 +23,56 @@ public class MonthlyCardController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        Users currentUser = (Users) session.getAttribute("user");
         
-        if (currentUser == null || !"staff".equalsIgnoreCase(currentUser.getRole())) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
+        String action = request.getServletPath();
+        HttpSession session = request.getSession();
         
         try {
-            // Get search and sort parameters
-            String search = request.getParameter("search");
-            String sort = request.getParameter("sort");
-            String order = request.getParameter("order");
+            // 1. TRANG HIỂN THỊ DANH SÁCH (Đẩy dữ liệu lên monthlycard.jsp)
+            if ("/staff/monthlycard".equals(action)) {
+                String search = request.getParameter("search");
+                String sort = request.getParameter("sort");
+                String order = request.getParameter("order");
 
-            // Default values
-            if (sort == null || sort.isEmpty()) sort = "cardID";
-            if (order == null || order.isEmpty()) order = "asc";
-            
-            String nextOrder = order.equals("asc") ? "desc" : "asc";
+                if (sort == null || sort.isEmpty()) sort = "cardID";
+                if (order == null || order.isEmpty()) order = "asc";
+                String nextOrder = order.equals("asc") ? "desc" : "asc";
 
-            MonthlyCardDAO dao = new MonthlyCardDAO();
-            List<MonthlyCard> cards = dao.getCardsWithSearchAndSort(search, sort, order);
+                MonthlyCardDAO dao = new MonthlyCardDAO();
+                List<MonthlyCard> cards = dao.getCardsWithSearchAndSort(search, sort, order);
+                
+                // ĐẨY DỮ LIỆU SANG JSP TẠI ĐÂY
+                request.setAttribute("cards", cards);
+                request.setAttribute("searchKeyword", search != null ? search : "");
+                request.setAttribute("sort", sort);
+                request.setAttribute("order", order);
+                request.setAttribute("nextOrder", nextOrder);
+                
+                request.getRequestDispatcher("/views/staff/monthlycard.jsp").forward(request, response);
+            }
+            // 2. TRANG THÊM MỚI
+            else if ("/staff/monthlycard/create".equals(action)) {
+                request.getRequestDispatcher("/views/staff/monthlycard_create.jsp").forward(request, response);
+            }
+            // 3. TRANG CẬP NHẬT
+            else if ("/staff/monthlycard/update".equals(action)) {
+                String idParam = request.getParameter("id");
+                if (idParam != null) {
+                    // Lấy lại danh sách và lọc ra thẻ cần sửa (vì DAO hiện tại chưa có hàm getById)
+                    MonthlyCardDAO dao = new MonthlyCardDAO();
+                    List<MonthlyCard> cards = dao.getCardsWithSearchAndSort(null, "cardID", "asc");
+                    MonthlyCard cardToEdit = cards.stream()
+                            .filter(c -> c.getCardID() == Integer.parseInt(idParam))
+                            .findFirst().orElse(null);
+                            
+                    request.setAttribute("card", cardToEdit);
+                }
+                request.getRequestDispatcher("/views/staff/monthlycard_update.jsp").forward(request, response);
+            }
             
-            // Set attributes for JSP
-            request.setAttribute("cards", cards);
-            request.setAttribute("searchKeyword", search != null ? search : "");
-            request.setAttribute("sort", sort);
-            request.setAttribute("order", order);
-            request.setAttribute("nextOrder", nextOrder);
-            
-            request.getRequestDispatcher("/views/staff/subscriptions.jsp").forward(request, response);
         } catch (Exception e) {
-            session.setAttribute("error", "Error loading subscriptions: " + e.getMessage());
-            request.getRequestDispatcher("/views/error.jsp").forward(request, response);
+            session.setAttribute("error", "Error loading page: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/staff/dashboard");
         }
     }
 
@@ -64,12 +80,6 @@ public class MonthlyCardController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-        Users currentUser = (Users) session.getAttribute("user");
-        
-        if (currentUser == null || !"staff".equalsIgnoreCase(currentUser.getRole())) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
 
         try {
             request.setCharacterEncoding("UTF-8");
@@ -183,11 +193,11 @@ public class MonthlyCardController extends HttpServlet {
             }
             
             // PRG pattern
-            response.sendRedirect(request.getContextPath() + "/staff/subscriptions");
+            response.sendRedirect(request.getContextPath() + "/staff/monthlycard");
             
         } catch (Exception e) {
             session.setAttribute("error", "Đã xảy ra lỗi: " + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/staff/subscriptions");
+            response.sendRedirect(request.getContextPath() + "/staff/monthlycard");
         }
     }
 }

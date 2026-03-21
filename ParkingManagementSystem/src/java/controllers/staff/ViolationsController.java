@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 import model.Customer;
 import model.ParkingTicket;
 import model.Violation;
@@ -20,8 +21,25 @@ public class ViolationsController extends HttpServlet {
             
         String action = request.getServletPath();
         ParkingTicketDAO tDao = new ParkingTicketDAO();
+        ViolationDAO vDao = new ViolationDAO();
 
-        if ("/staff/violations/create".equals(action)) {
+        // =========================
+        // HIỂN THỊ DANH SÁCH VI PHẠM
+        // =========================
+        if ("/staff/violations".equals(action)) {
+            String keyword = request.getParameter("keyword");
+            
+            // Gọi DAO lấy danh sách vi phạm
+            List<Violation> violations = vDao.getAll(keyword);
+            
+            request.setAttribute("violations", violations);
+            request.setAttribute("keyword", keyword);
+            request.getRequestDispatcher("/views/staff/violations.jsp").forward(request, response);
+            
+        // =========================
+        // TRANG TẠO VI PHẠM MỚI
+        // =========================
+        } else if ("/staff/violations/create".equals(action)) {
             String ticketIdParam = request.getParameter("ticketId");
             if (ticketIdParam != null && !ticketIdParam.trim().isEmpty()) {
                 ParkingTicket ticket = tDao.getById(Integer.parseInt(ticketIdParam));
@@ -47,14 +65,13 @@ public class ViolationsController extends HttpServlet {
                 ticketId = Integer.parseInt(ticketIdParam);
             }
             
-            // For violation we need a customer. Let's create customer if not exists
+            // Tạo khách hàng nếu chưa có
             String customerName = request.getParameter("customerName");
             String customerPhone = request.getParameter("customerPhone");
             
             Customer c = new Customer(0, customerName, customerPhone);
-            cDao.create(c); // DAO creates and sets generated ID? Wait DAO uses GET_GENERATED_KEYS but does it set to the object? 
-            // The DAO returns boolean, we might need a workaround or assume standard DB structure if keys aren't set back.
-            // A more complete DAO would return the generated ID. To be safe, look it up.
+            cDao.create(c); 
+            
             Customer cLookup = cDao.getAll(customerPhone).isEmpty() ? null : cDao.getAll(customerPhone).get(0);
             Integer customerId = cLookup != null ? cLookup.getId() : null;
             
@@ -63,7 +80,8 @@ public class ViolationsController extends HttpServlet {
             
             Violation v = new Violation(0, ticketId, customerId, reason, fine, "Unpaid", null);
             if (vDao.create(v)) {
-                response.sendRedirect(request.getContextPath() + "/staff/dashboard?msg=violation_success");
+                // Chuyển hướng về trang danh sách vi phạm thay vì dashboard cho hợp lý
+                response.sendRedirect(request.getContextPath() + "/staff/violations?msg=success");
             } else {
                 request.setAttribute("error", "Lỗi lập biên bản vi phạm.");
                 doGet(request, response);

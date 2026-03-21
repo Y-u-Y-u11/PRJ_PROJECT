@@ -3,6 +3,8 @@
     <servlet-mapping>
         <servlet-name>MonthlyCardController</servlet-name>
         <url-pattern>/staff/monthlycard</url-pattern>
+        <url-pattern>/staff/monthlycard/create</url-pattern>
+        <url-pattern>/staff/monthlycard/update</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>30</session-timeout>
@@ -171,6 +173,8 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>TicketsControllerStaff</servlet-name>
+        <url-pattern>/staff/tickets</url-pattern>
+        <url-pattern>/staff/tickets/view</url-pattern>
         <url-pattern>/staff/tickets/checkin</url-pattern>
         <url-pattern>/staff/tickets/checkout</url-pattern>
         <url-pattern>/staff/tickets/search</url-pattern>
@@ -189,6 +193,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>ViolationsControllerStaff</servlet-name>
+        <url-pattern>/staff/violations</url-pattern>
         <url-pattern>/staff/violations/create</url-pattern>
     </servlet-mapping>
     <servlet>
