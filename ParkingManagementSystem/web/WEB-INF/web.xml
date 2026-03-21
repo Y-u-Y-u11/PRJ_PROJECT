@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="5.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd">
     <servlet-mapping>
-        <servlet-name>MonthlyCardController</servlet-name>
-        <url-pattern>/staff/monthlycard</url-pattern>
-        <url-pattern>/staff/monthlycard/create</url-pattern>
-        <url-pattern>/staff/monthlycard/update</url-pattern>
+        <servlet-name>AuditController</servlet-name>
+        <url-pattern>/admin/audit</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>30</session-timeout>
@@ -39,6 +37,10 @@
     <servlet>
         <servlet-name>MonthlyCardController</servlet-name>
         <servlet-class>controllers.staff.MonthlyCardController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AuditController</servlet-name>
+        <servlet-class>controllers.manager.AuditController</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>AuthController</servlet-name>
@@ -167,6 +169,12 @@
         <servlet-name>DashboardControllerStaff</servlet-name>
         <url-pattern>/staff/dashboard</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MonthlyCardController</servlet-name>
+        <url-pattern>/staff/monthlycard</url-pattern>
+        <url-pattern>/staff/monthlycard/create</url-pattern>
+        <url-pattern>/staff/monthlycard/update</url-pattern>
+    </servlet-mapping>
     <servlet>
         <servlet-name>TicketsControllerStaff</servlet-name>
         <servlet-class>controllers.staff.TicketsController</servlet-class>
@@ -174,6 +182,7 @@
     <servlet-mapping>
         <servlet-name>TicketsControllerStaff</servlet-name>
         <url-pattern>/staff/tickets</url-pattern>
+        <url-pattern>/staff/tickets/ticket_list</url-pattern>
         <url-pattern>/staff/tickets/view</url-pattern>
         <url-pattern>/staff/tickets/checkin</url-pattern>
         <url-pattern>/staff/tickets/checkout</url-pattern>
@@ -194,6 +203,7 @@
     <servlet-mapping>
         <servlet-name>ViolationsControllerStaff</servlet-name>
         <url-pattern>/staff/violations</url-pattern>
+        <url-pattern>/staff/violations/update</url-pattern>
         <url-pattern>/staff/violations/create</url-pattern>
     </servlet-mapping>
     <servlet>

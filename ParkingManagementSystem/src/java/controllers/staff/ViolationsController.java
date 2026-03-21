@@ -2,6 +2,7 @@ package controllers.staff;
 
 import dal.CustomerDAO;
 import dal.ParkingTicketDAO;
+import dal.PaymentTransactionDAO;
 import dal.ViolationDAO;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import model.Customer;
 import model.ParkingTicket;
+import model.PaymentTransaction;
 import model.Violation;
 
 public class ViolationsController extends HttpServlet {
@@ -23,22 +25,14 @@ public class ViolationsController extends HttpServlet {
         ParkingTicketDAO tDao = new ParkingTicketDAO();
         ViolationDAO vDao = new ViolationDAO();
 
-        // =========================
-        // HIỂN THỊ DANH SÁCH VI PHẠM
-        // =========================
         if ("/staff/violations".equals(action)) {
             String keyword = request.getParameter("keyword");
-            
-            // Gọi DAO lấy danh sách vi phạm
             List<Violation> violations = vDao.getAll(keyword);
             
             request.setAttribute("violations", violations);
             request.setAttribute("keyword", keyword);
             request.getRequestDispatcher("/views/staff/violations.jsp").forward(request, response);
             
-        // =========================
-        // TRANG TẠO VI PHẠM MỚI
-        // =========================
         } else if ("/staff/violations/create".equals(action)) {
             String ticketIdParam = request.getParameter("ticketId");
             if (ticketIdParam != null && !ticketIdParam.trim().isEmpty()) {
@@ -46,6 +40,16 @@ public class ViolationsController extends HttpServlet {
                 request.setAttribute("ticket", ticket);
             }
             request.getRequestDispatcher("/views/staff/violations_create.jsp").forward(request, response);
+            
+        } else if ("/staff/violations/update".equals(action)) {
+            String idParam = request.getParameter("id");
+            if (idParam != null && !idParam.isEmpty()) {
+                Violation v = vDao.getById(Integer.parseInt(idParam));
+                request.setAttribute("violation", v);
+                request.getRequestDispatcher("/views/staff/violations_update.jsp").forward(request, response);
+            } else {
+                response.sendRedirect(request.getContextPath() + "/staff/violations");
+            }
         }
     }
 
@@ -53,10 +57,11 @@ public class ViolationsController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
             
+        request.setCharacterEncoding("UTF-8");
         String action = request.getServletPath();
         ViolationDAO vDao = new ViolationDAO();
         CustomerDAO cDao = new CustomerDAO();
-        ParkingTicketDAO tDao = new ParkingTicketDAO();
+        PaymentTransactionDAO ptDao = new PaymentTransactionDAO();
 
         if ("/staff/violations/create".equals(action)) {
             Integer ticketId = null;
@@ -65,7 +70,6 @@ public class ViolationsController extends HttpServlet {
                 ticketId = Integer.parseInt(ticketIdParam);
             }
             
-            // Tạo khách hàng nếu chưa có
             String customerName = request.getParameter("customerName");
             String customerPhone = request.getParameter("customerPhone");
             
@@ -80,11 +84,50 @@ public class ViolationsController extends HttpServlet {
             
             Violation v = new Violation(0, ticketId, customerId, reason, fine, "Unpaid", null);
             if (vDao.create(v)) {
-                // Chuyển hướng về trang danh sách vi phạm thay vì dashboard cho hợp lý
                 response.sendRedirect(request.getContextPath() + "/staff/violations?msg=success");
             } else {
                 request.setAttribute("error", "Lỗi lập biên bản vi phạm.");
                 doGet(request, response);
+            }
+            
+        } else if ("/staff/violations/update".equals(action)) {
+            int id = Integer.parseInt(request.getParameter("id"));
+            String reason = request.getParameter("reason");
+            BigDecimal fine = new BigDecimal(request.getParameter("fine"));
+            String status = request.getParameter("status");
+            String paymentMethod = request.getParameter("paymentMethod"); // Lấy phương thức thanh toán
+            
+            Violation v = vDao.getById(id);
+            if (v != null) {
+                String oldStatus = v.getStatus(); // Lưu lại trạng thái cũ
+                v.setReason(reason);
+                v.setFine(fine);
+                v.setStatus(status);
+                
+                if (vDao.update(v)) {
+                    // Nếu cập nhật thành công và chuyển trạng thái sang Paid (trước đó chưa Paid)
+                    if ("Paid".equals(status) && !"Paid".equals(oldStatus)) {
+                        PaymentTransaction pt = new PaymentTransaction();
+                        pt.setTicketID(v.getTicketID()); // Có thể null
+                        pt.setAmount(fine);
+                        pt.setMethod(paymentMethod != null ? paymentMethod : "Cash");
+                        pt.setStatus("Success");
+                        pt.setReferenceCode("VIO-" + v.getId() + "-" + System.currentTimeMillis());
+                        ptDao.create(pt);
+                    }
+                    response.sendRedirect(request.getContextPath() + "/staff/violations?msg=update_success");
+                } else {
+                    request.setAttribute("error", "Cập nhật thất bại.");
+                    doGet(request, response);
+                }
+            }
+            
+        } else if ("/staff/violations/delete".equals(action)) {
+            int id = Integer.parseInt(request.getParameter("id"));
+            if (vDao.delete(id)) {
+                response.sendRedirect(request.getContextPath() + "/staff/violations?msg=delete_success");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/staff/violations?msg=delete_fail");
             }
         }
     }

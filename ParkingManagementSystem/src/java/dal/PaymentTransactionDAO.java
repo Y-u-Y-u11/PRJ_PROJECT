@@ -59,7 +59,13 @@ public class PaymentTransactionDAO extends DBContext {
     public boolean create(PaymentTransaction pt) {
         String sql = "INSERT INTO PaymentTransaction (ticketID, amount, method, status, referenceCode) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, pt.getTicketID());
+            // Xử lý an toàn cho trường hợp ticketID bị null
+            if (pt.getTicketID() != null) {
+                ps.setInt(1, pt.getTicketID());
+            } else {
+                ps.setNull(1, java.sql.Types.INTEGER);
+            }
+            
             ps.setBigDecimal(2, pt.getAmount());
             ps.setString(3, pt.getMethod());
             ps.setString(4, pt.getStatus());
@@ -84,9 +90,12 @@ public class PaymentTransactionDAO extends DBContext {
     }
 
     private PaymentTransaction mapRow(ResultSet rs) throws SQLException {
+        int tId = rs.getInt("ticketID");
+        Integer ticketID = rs.wasNull() ? null : tId; // Ánh xạ an toàn Integer null
+        
         return new PaymentTransaction(
             rs.getInt("id"),
-            rs.getInt("ticketID"),
+            ticketID,
             rs.getBigDecimal("amount"),
             rs.getString("method"),
             rs.getString("status"),

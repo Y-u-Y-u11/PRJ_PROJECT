@@ -2,51 +2,59 @@ package controllers.staff;
 
 import dal.MonthlyCardDAO;
 import dal.VehicleTypeDAO;
+import dal.PaymentTransactionDAO;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.MonthlyCard;
 import model.VehicleType;
+import model.PaymentTransaction;
 
-@WebServlet(name = "MonthlyCardController", urlPatterns = {"/staff/monthlycard", "/staff/monthlycard/create", "/staff/monthlycard/update"})
 public class MonthlyCardController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        String path = request.getServletPath();
+        String uri = request.getRequestURI(); 
         MonthlyCardDAO dao = new MonthlyCardDAO();
         VehicleTypeDAO vtDao = new VehicleTypeDAO();
 
         try {
-            // Lấy danh sách loại xe để truyền vào form Create/Update
             List<VehicleType> vehicleTypes = vtDao.getAll();
             request.setAttribute("vehicleTypes", vehicleTypes);
 
-            if ("/staff/monthlycard/create".equals(path)) {
+            if (uri.endsWith("/create")) {
                 request.getRequestDispatcher("/views/staff/monthlycard_create.jsp").forward(request, response);
             } 
-            else if ("/staff/monthlycard/update".equals(path)) {
+            else if (uri.endsWith("/update")) {
                 String idParam = request.getParameter("id");
                 if (idParam != null && !idParam.isEmpty()) {
                     List<MonthlyCard> cards = dao.getCardsWithSearchAndSort(null, "cardID", "asc");
                     MonthlyCard cardToEdit = cards.stream()
                             .filter(c -> c.getCardID() == Integer.parseInt(idParam))
                             .findFirst().orElse(null);
-                    request.setAttribute("card", cardToEdit);
+                    
+                    if (cardToEdit != null) {
+                        request.setAttribute("card", cardToEdit);
+                        request.getRequestDispatcher("/views/staff/monthlycard_update.jsp").forward(request, response);
+                        return;
+                    } else {
+                        request.getSession().setAttribute("error", "Không tìm thấy thẻ cần sửa!");
+                        response.sendRedirect(request.getContextPath() + "/staff/monthlycard");
+                        return;
+                    }
                 }
-                request.getRequestDispatcher("/views/staff/monthlycard_update.jsp").forward(request, response);
+                response.sendRedirect(request.getContextPath() + "/staff/monthlycard");
             } 
             else {
-                // TRANG DANH SÁCH
                 String search = request.getParameter("search");
                 String sort = request.getParameter("sort");
                 String order = request.getParameter("order");
@@ -81,6 +89,7 @@ public class MonthlyCardController extends HttpServlet {
         
         MonthlyCardDAO dao = new MonthlyCardDAO();
         VehicleTypeDAO vtDao = new VehicleTypeDAO();
+        PaymentTransactionDAO ptDao = new PaymentTransactionDAO();
 
         try {
             if ("add".equals(action)) {
@@ -88,18 +97,28 @@ public class MonthlyCardController extends HttpServlet {
                 
                 int vehicleTypeID = parseIntSafe(request.getParameter("vehicleTypeID"), 1);
                 int months = parseIntSafe(request.getParameter("months"), 1);
+                String paymentMethod = request.getParameter("paymentMethod"); 
+                if (paymentMethod == null || paymentMethod.isEmpty()) paymentMethod = "Cash";
                 
-                // Tính toán ngầm giá tiền: (Giá mặc định của loại xe) * 20 * (số tháng)
-                double calculatedPrice = 0.0;
+                // --- KIỂM TRA BẢNG GIÁ CỦA LOẠI XE TRƯỚC ---
                 VehicleType vt = vtDao.getById(vehicleTypeID);
-                if (vt != null && vt.getCurrentPrice() != null) {
-                    calculatedPrice = vt.getCurrentPrice().doubleValue() * 20 * months;
+                if (vt == null) {
+                    session.setAttribute("error", "Lỗi: Không tìm thấy loại xe hợp lệ trong hệ thống.");
+                    response.sendRedirect(request.getContextPath() + "/staff/monthlycard");
+                    return;
                 }
+                if (vt.getCurrentPrice() == null) {
+                    session.setAttribute("error", "Lỗi: Loại xe này chưa có Bảng Giá (Pricing). Vui lòng thiết lập giá cho loại xe mới trước khi đăng ký thẻ!");
+                    response.sendRedirect(request.getContextPath() + "/staff/monthlycard");
+                    return;
+                }
+                
+                double calculatedPrice = vt.getCurrentPrice().doubleValue() * 20 * months;
                 
                 newCard.setCustomerID(parseIntSafe(request.getParameter("customerID"), 0));
                 newCard.setVehicleTypeID(vehicleTypeID);
                 newCard.setPlateNumber(request.getParameter("plateNumber"));
-                newCard.setPrice(calculatedPrice); // Gán giá đã được tính ngầm
+                newCard.setPrice(calculatedPrice); 
                 
                 String startDateStr = request.getParameter("startDate");
                 String endDateStr = startDateStr;
@@ -113,8 +132,21 @@ public class MonthlyCardController extends HttpServlet {
                 newCard.setEndDate(endDateStr);
                 newCard.setStatus("Active");
 
-                dao.createMonthlyCard(newCard);
-                session.setAttribute("message", "Thêm thẻ tháng thành công!");
+                // KIỂM TRA QUÁ TRÌNH LƯU DB TRƯỚC KHI THU TIỀN
+                boolean isCreated = dao.createMonthlyCard(newCard);
+                
+                if (isCreated) {
+                    PaymentTransaction pt = new PaymentTransaction(
+                            0, null, 
+                            BigDecimal.valueOf(calculatedPrice), 
+                            paymentMethod, "Success", 
+                            "MCARD-" + System.currentTimeMillis(), null
+                    );
+                    ptDao.create(pt);
+                    session.setAttribute("message", "Thêm thẻ tháng và thu tiền thành công!");
+                } else {
+                    session.setAttribute("error", "Không thể lưu thẻ! Có thể ID Khách Hàng không tồn tại hoặc dữ liệu không hợp lệ.");
+                }
             } 
             else if ("edit".equals(action)) {
                 MonthlyCard card = new MonthlyCard();
@@ -123,21 +155,28 @@ public class MonthlyCardController extends HttpServlet {
                 String startDateStr = request.getParameter("startDate");
                 String endDateStr = request.getParameter("endDate");
                 
-                // Tính toán lại số tháng nếu admin thay đổi ngày hết hạn
                 long months = 1;
                 if (startDateStr != null && endDateStr != null && !startDateStr.isEmpty() && !endDateStr.isEmpty()) {
                     LocalDate stDate = LocalDate.parse(startDateStr);
                     LocalDate enDate = LocalDate.parse(endDateStr);
                     months = ChronoUnit.MONTHS.between(stDate, enDate);
-                    if (months <= 0) months = 1; // Đảm bảo tối thiểu là 1 tháng
+                    if (months <= 0) months = 1;
                 }
                 
-                // Tính toán ngầm giá tiền cập nhật
-                double calculatedPrice = 0.0;
+                // --- KIỂM TRA BẢNG GIÁ CỦA LOẠI XE TRƯỚC ---
                 VehicleType vt = vtDao.getById(vehicleTypeID);
-                if (vt != null && vt.getCurrentPrice() != null) {
-                    calculatedPrice = vt.getCurrentPrice().doubleValue() * 20 * months;
+                if (vt == null) {
+                    session.setAttribute("error", "Lỗi: Không tìm thấy loại xe hợp lệ trong hệ thống.");
+                    response.sendRedirect(request.getContextPath() + "/staff/monthlycard");
+                    return;
                 }
+                if (vt.getCurrentPrice() == null) {
+                    session.setAttribute("error", "Lỗi: Loại xe này chưa có Bảng Giá (Pricing). Vui lòng thiết lập giá trước khi cập nhật thẻ!");
+                    response.sendRedirect(request.getContextPath() + "/staff/monthlycard");
+                    return;
+                }
+                
+                double calculatedPrice = vt.getCurrentPrice().doubleValue() * 20 * months;
 
                 card.setCardID(parseIntSafe(request.getParameter("cardID"), 0));
                 card.setCustomerID(parseIntSafe(request.getParameter("customerID"), 0));
@@ -145,43 +184,53 @@ public class MonthlyCardController extends HttpServlet {
                 card.setPlateNumber(request.getParameter("plateNumber"));
                 card.setStartDate(startDateStr);
                 card.setEndDate(endDateStr);
-                card.setPrice(calculatedPrice); // Gán giá đã được tính ngầm lại
+                card.setPrice(calculatedPrice); 
                 card.setStatus(request.getParameter("status"));
                 
-                dao.updateMonthlyCard(card);
-                session.setAttribute("message", "Cập nhật thẻ tháng thành công!");
+                boolean isUpdated = dao.updateMonthlyCard(card);
+                if (isUpdated) {
+                    session.setAttribute("message", "Cập nhật thẻ tháng thành công!");
+                } else {
+                    session.setAttribute("error", "Lỗi: Không thể cập nhật thẻ vào CSDL!");
+                }
             } 
             else if ("delete".equals(action)) {
                 int id = parseIntSafe(request.getParameter("cardID"), 0);
                 if(id > 0) {
-                    dao.deleteMonthlyCard(id);
-                    session.setAttribute("message", "Xóa thẻ tháng thành công!");
+                    List<MonthlyCard> cards = dao.getCardsWithSearchAndSort(null, "cardID", "asc");
+                    MonthlyCard cardToDelete = cards.stream()
+                            .filter(c -> c.getCardID() == id)
+                            .findFirst().orElse(null);
+                            
+                    if (cardToDelete != null) {
+                        if ("Active".equalsIgnoreCase(cardToDelete.getStatus())) {
+                            session.setAttribute("error", "Lỗi: Không thể xóa thẻ đang trong trạng thái Hoạt động!");
+                        } else {
+                            dao.deleteMonthlyCard(id);
+                            session.setAttribute("message", "Xóa thẻ tháng thành công!");
+                        }
+                    } else {
+                        session.setAttribute("error", "Không tìm thấy thẻ để xóa!");
+                    }
                 }
             }
         } catch (Exception e) {
-            session.setAttribute("error", "Đã xảy ra lỗi khi lưu: Vui lòng kiểm tra lại dữ liệu đầu vào.");
+            session.setAttribute("error", "Đã xảy ra lỗi khi xử lý dữ liệu đầu vào. Vui lòng kiểm tra lại.");
             System.out.println("Error details: " + e.getMessage());
         }
         
         response.sendRedirect(request.getContextPath() + "/staff/monthlycard");
     }
 
-    // Các hàm Helper để xử lý an toàn Null/Empty String
     private int parseIntSafe(String val, int defaultVal) {
         if (val == null || val.trim().isEmpty()) return defaultVal;
-        try {
-            return Integer.parseInt(val.trim());
-        } catch (NumberFormatException e) {
-            return defaultVal;
-        }
+        try { return Integer.parseInt(val.trim()); } 
+        catch (NumberFormatException e) { return defaultVal; }
     }
 
     private double parseDoubleSafe(String val, double defaultVal) {
         if (val == null || val.trim().isEmpty()) return defaultVal;
-        try {
-            return Double.parseDouble(val.trim());
-        } catch (NumberFormatException e) {
-            return defaultVal;
-        }
+        try { return Double.parseDouble(val.trim()); } 
+        catch (NumberFormatException e) { return defaultVal; }
     }
 }

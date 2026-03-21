@@ -27,4 +27,15 @@
     </div>
 </div>
 
+    <!-- THÊM MỚI: Card cho Audit Log dành cho Admin -->
+    <div class="col-md-6 mb-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <h4 class="card-title text-danger mb-3">Nhật ký hệ thống (Audit Log)</h4>
+                <p class="card-text">Kiểm tra lịch sử thao tác dữ liệu, quyền truy cập chỉ dành cho Quản trị viên (Admin).</p>
+                <a href="${pageContext.request.contextPath}/admin/audit" class="btn btn-outline-danger">Xem Nhật ký & Xuất file</a>
+            </div>
+        </div>
+    </div>
+
 <jsp:include page="/views/layout/footer.jsp" />

@@ -19,13 +19,16 @@ import model.PaymentTransaction;
 import model.Users;
 import model.VehicleType;
 
+// Đã gỡ bỏ @WebServlet vì dự án sử dụng cấu hình qua file web.xml
 public class TicketsController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String action = request.getServletPath();
+        // CÁCH LẤY URL AN TOÀN: Bỏ phần contextPath đi để lấy chính xác path phía sau
+        // Ví dụ: /ParkingManagementSystem/staff/tickets/checkin -> /staff/tickets/checkin
+        String action = request.getRequestURI().substring(request.getContextPath().length());
 
         ParkingSlotDAO sDao = new ParkingSlotDAO();
         VehicleTypeDAO vDao = new VehicleTypeDAO();
@@ -35,29 +38,22 @@ public class TicketsController extends HttpServlet {
         // =========================
         // DANH SÁCH TICKETS
         // =========================
-        if ("/staff/tickets".equals(action)) {
+        if ("/staff/tickets".equals(action) || "/staff/tickets/".equals(action)) {
 
             String keyword = request.getParameter("keyword");
             String status = request.getParameter("status");
 
             Users currentUser = (Users) request.getSession().getAttribute("LOGIN_USER");
 
+            // Lấy toàn bộ vé từ DB dựa trên keyword và status
             List<ParkingTicket> list = tDao.getAll(keyword, status);
 
-            // Filter theo nhân viên
-            if (currentUser != null) {
-                list = list.stream()
-                        .filter(t
-                                -> t.getCheckInStaffID() == currentUser.getId()
-                        || (t.getCheckOutStaffID() != null
-                        && t.getCheckOutStaffID() == currentUser.getId()))
-                        .collect(Collectors.toList());
-            }
 
             request.setAttribute("tickets", list);
             request.setAttribute("keyword", keyword);
             request.setAttribute("statusFilter", status);
-            request.getRequestDispatcher("/views/staff/tickets.jsp").forward(request, response);
+            // Forward sang tickets_list.jsp
+            request.getRequestDispatcher("/views/staff/tickets_list.jsp").forward(request, response);
 
             // =========================
             // VIEW CHI TIẾT
@@ -121,7 +117,9 @@ public class TicketsController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String action = request.getServletPath();
+        // Lấy URL an toàn tương tự doGet
+        String action = request.getRequestURI().substring(request.getContextPath().length());
+        
         ParkingTicketDAO tDao = new ParkingTicketDAO();
         Users currentUser = (Users) request.getSession().getAttribute("LOGIN_USER");
 
@@ -137,10 +135,13 @@ public class TicketsController extends HttpServlet {
             }
 
             int vehicleTypeId = Integer.parseInt(request.getParameter("vehicleTypeId"));
-            int slotId = Integer.parseInt(request.getParameter("slotId"));
+            
+            // Xử lý an toàn cho slotId (có thể bị rỗng nếu không truyền lên)
+            String slotIdStr = request.getParameter("slotId");
+            Integer slotId = (slotIdStr != null && !slotIdStr.isEmpty()) ? Integer.parseInt(slotIdStr) : null;
 
-            // Generate ticket code: T + timestamp
-            String ticketCode = "T" + System.currentTimeMillis();
+            // Generate ticket code: TK- + timestamp
+            String ticketCode = "TK-" + System.currentTimeMillis();
 
             ParkingTicket ticket = new ParkingTicket(
                     0,
@@ -151,21 +152,24 @@ public class TicketsController extends HttpServlet {
                     null,
                     new java.sql.Timestamp(System.currentTimeMillis()),
                     null,
-                    currentUser.getId(),
+                    currentUser != null ? currentUser.getId() : 2, // Mặc định là 2 nếu session null
                     null,
                     "Parking"
             );
 
-            if (tDao.create(ticket) != null) {
-                // Update slot status to occupied
-                ParkingSlotDAO sDao = new ParkingSlotDAO();
-                model.ParkingSlot slot = sDao.getById(slotId);
-                // The PRD doesn't explicitly mention slot status column, it assumes occupied if ticket refers to it.
-                // Our DAO logic uses checking tickets to find available slots, so no need to update slot table.
+            // Gọi DAO tạo vé vào CSDL
+            ParkingTicket createdTicket = tDao.create(ticket);
 
-                response.sendRedirect(request.getContextPath() + "/staff/dashboard?msg=checkin_success");
+            if (createdTicket != null) {
+                // Tích hợp logic In vé: Forward sang ticket thay vì sendRedirect
+                VehicleTypeDAO vDao = new VehicleTypeDAO();
+                VehicleType vehicleType = vDao.getById(vehicleTypeId);
+                
+                request.setAttribute("ticket", createdTicket);
+                request.setAttribute("vehicleType", vehicleType);
+                request.getRequestDispatcher("/views/staff/ticket.jsp").forward(request, response);
             } else {
-                request.setAttribute("error", "Lỗi tạo vé Check-in.");
+                request.setAttribute("error", "Lỗi tạo vé Check-in. Vui lòng thử lại.");
                 doGet(request, response);
             }
         }

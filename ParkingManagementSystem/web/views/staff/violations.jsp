@@ -7,9 +7,28 @@
     <a href="${pageContext.request.contextPath}/staff/violations/create" class="btn btn-danger">+ Lập biên bản mới</a>
 </div>
 
+<!-- Thông báo thao tác -->
 <c:if test="${param.msg == 'success'}">
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         Lập biên bản vi phạm thành công!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</c:if>
+<c:if test="${param.msg == 'update_success'}">
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        Cập nhật biên bản thành công!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</c:if>
+<c:if test="${param.msg == 'delete_success'}">
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        Đã xóa biên bản vi phạm!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</c:if>
+<c:if test="${param.msg == 'delete_fail'}">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        Không thể xóa biên bản này. Vui lòng kiểm tra lại.
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 </c:if>
@@ -32,42 +51,52 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
-        <table class="table table-hover table-bordered">
-            <thead class="table-light">
-                <tr>
-                    <th>ID</th>
-                    <th>Mã Vé (ID)</th>
-                    <th>ID Khách hàng</th>
-                    <th>Lý do</th>
-                    <th>Tiền phạt</th>
-                    <th>Trạng thái</th>
-                    <th>Ngày tạo</th>
-                </tr>
-            </thead>
-            <tbody>
-                <c:forEach var="v" items="${violations}">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle">
+                <thead class="table-light">
                     <tr>
-                        <td><strong>${v.id}</strong></td>
-                        <td>${v.ticketID != null ? v.ticketID : '--'}</td>
-                        <td>${v.customerID != null ? v.customerID : '--'}</td>
-                        <td>${v.reason}</td>
-                        <td class="text-danger fw-bold">${v.fine} VNĐ</td>
-                        <td>
-                            <c:choose>
-                                <c:when test="${v.status == 'Unpaid'}"><span class="badge bg-warning text-dark">Chưa thanh toán</span></c:when>
-                                <c:when test="${v.status == 'Paid'}"><span class="badge bg-success">Đã thanh toán</span></c:when>
-                                <c:when test="${v.status == 'Voided'}"><span class="badge bg-secondary">Hủy bỏ</span></c:when>
-                                <c:otherwise><span class="badge bg-secondary">${v.status}</span></c:otherwise>
-                            </c:choose>
-                        </td>
-                        <td>${v.createdAt}</td>
+                        <th>ID</th>
+                        <th>Mã Vé (ID)</th>
+                        <th>ID Khách hàng</th>
+                        <th>Lý do</th>
+                        <th>Tiền phạt</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
                     </tr>
-                </c:forEach>
-                <c:if test="${empty violations}">
-                    <tr><td colspan="7" class="text-center text-muted">Không tìm thấy dữ liệu vi phạm nào.</td></tr>
-                </c:if>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <c:forEach var="v" items="${violations}">
+                        <tr>
+                            <td><strong>#${v.id}</strong></td>
+                            <td>${v.ticketID != null ? v.ticketID : '--'}</td>
+                            <td>${v.customerID != null ? v.customerID : '--'}</td>
+                            <td>${v.reason}</td>
+                            <td class="text-danger fw-bold">${v.fine} VNĐ</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${v.status == 'Unpaid'}"><span class="badge bg-warning text-dark">Chưa thanh toán</span></c:when>
+                                    <c:when test="${v.status == 'Paid'}"><span class="badge bg-success">Đã thanh toán</span></c:when>
+                                    <c:when test="${v.status == 'Voided'}"><span class="badge bg-secondary">Hủy bỏ</span></c:when>
+                                    <c:otherwise><span class="badge bg-secondary">${v.status}</span></c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td>${v.createdAt}</td>
+                            <td>
+                                <a href="${pageContext.request.contextPath}/staff/violations/update?id=${v.id}" class="btn btn-sm btn-outline-warning">Sửa</a>
+                                <form action="${pageContext.request.contextPath}/staff/violations/delete" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa biên bản vi phạm này?');">
+                                    <input type="hidden" name="id" value="${v.id}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                    <c:if test="${empty violations}">
+                        <tr><td colspan="8" class="text-center text-muted py-3">Không tìm thấy dữ liệu vi phạm nào.</td></tr>
+                    </c:if>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

@@ -81,11 +81,21 @@
                             </td>
                             <td>
                                 <a href="${pageContext.request.contextPath}/staff/monthlycard/update?id=${c.cardID}" class="btn btn-sm btn-outline-warning">Sửa</a>
-                                <form action="${pageContext.request.contextPath}/staff/monthlycard" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa thẻ này?');">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="cardID" value="${c.cardID}">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
-                                </form>
+                                
+                                <!-- Logic kiểm tra nếu Active thì hiển thị nút xóa dạng disable/cảnh báo -->
+                                <c:choose>
+                                    <c:when test="${c.status eq 'Active'}">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="alert('Không thể xóa thẻ đang hoạt động! Vui lòng Hủy hoặc chờ Hết hạn.');" title="Chỉ được xóa thẻ không còn hoạt động">Xóa</button>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <form action="${pageContext.request.contextPath}/staff/monthlycard" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa thẻ này?');">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="cardID" value="${c.cardID}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                                        </form>
+                                    </c:otherwise>
+                                </c:choose>
+                                
                             </td>
                         </tr>
                     </c:forEach>

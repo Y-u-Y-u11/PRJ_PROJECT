@@ -6,7 +6,8 @@ import java.sql.*;
 
 public class MonthlyCardDAO extends DBContext {
 
-    public void createMonthlyCard(MonthlyCard o) {
+    // Đã đổi void thành boolean để Controller biết DB lưu thành công hay thất bại
+    public boolean createMonthlyCard(MonthlyCard o) {
         String sql = "INSERT INTO MonthlyCard (customerID, vehicleTypeID, plateNumber, startDate, endDate, price, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, o.getCustomerID());
@@ -16,9 +17,10 @@ public class MonthlyCardDAO extends DBContext {
             stm.setString(5, o.getEndDate());
             stm.setDouble(6, o.getPrice());
             stm.setString(7, o.getStatus());
-            stm.executeUpdate();
+            return stm.executeUpdate() > 0; // Trả về true nếu Insert thành công
         } catch (SQLException e) {
             System.out.println("Error Insert: " + e.getMessage());
+            return false; // Báo lỗi để Controller không cho lưu ảo
         }
     }
 
@@ -40,7 +42,6 @@ public class MonthlyCardDAO extends DBContext {
         
         String safeOrder = "desc".equalsIgnoreCase(order) ? "DESC" : "ASC";
         
-        // JOIN 3 bảng để lấy đủ thông tin hiển thị
         String sql = "SELECT m.cardID, m.customerID, c.name AS customerName, m.vehicleTypeID, v.name AS vehicleTypeName, " +
                      "m.plateNumber, m.startDate, m.endDate, m.price, m.status " +
                      "FROM MonthlyCard m " +
@@ -77,7 +78,8 @@ public class MonthlyCardDAO extends DBContext {
         return result;
     }
 
-    public void updateMonthlyCard(MonthlyCard o) {
+    // Đã đổi void thành boolean
+    public boolean updateMonthlyCard(MonthlyCard o) {
         String sql = "UPDATE MonthlyCard SET customerID = ?, vehicleTypeID = ?, plateNumber = ?, startDate = ?, endDate = ?, price = ?, status = ? WHERE cardID = ?";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, o.getCustomerID());
@@ -88,19 +90,48 @@ public class MonthlyCardDAO extends DBContext {
             stm.setDouble(6, o.getPrice());
             stm.setString(7, o.getStatus());
             stm.setInt(8, o.getCardID());
-            stm.executeUpdate();
+            return stm.executeUpdate() > 0;
         } catch (SQLException e) {
             System.out.println("Error UPDATE: " + e.getMessage());
+            return false;
         }
     }
 
-    public void deleteMonthlyCard(int id) {
-        String sql = "DELETE FROM MonthlyCard WHERE cardID = ?";
-        try (PreparedStatement stm = connection.prepareStatement(sql)) {
-            stm.setInt(1, id);
-            stm.executeUpdate();
+    public boolean deleteMonthlyCard(int id) {
+        String updateTicketSql = "UPDATE ParkingTicket SET monthlyCardID = NULL WHERE monthlyCardID = ?";
+        String deleteCardSql = "DELETE FROM MonthlyCard WHERE cardID = ?";
+        boolean isDeleted = false;
+        
+        try {
+            connection.setAutoCommit(false);
+            
+            try (PreparedStatement stmUpdate = connection.prepareStatement(updateTicketSql)) {
+                stmUpdate.setInt(1, id);
+                stmUpdate.executeUpdate();
+            }
+            
+            try (PreparedStatement stmDelete = connection.prepareStatement(deleteCardSql)) {
+                stmDelete.setInt(1, id);
+                isDeleted = stmDelete.executeUpdate() > 0;
+            }
+            
+            connection.commit();
         } catch (SQLException e) {
-            System.out.println("Error DELETE: " + e.getMessage());
+            System.out.println("Error HARD DELETE: " + e.getMessage());
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                System.out.println("Error Rollback: " + ex.getMessage());
+            }
+            return false;
+        } finally {
+            try {
+                connection.setAutoCommit(true); 
+            } catch (SQLException ex) {
+                System.out.println("Error Reset AutoCommit: " + ex.getMessage());
+            }
         }
+        
+        return isDeleted;
     }
 }

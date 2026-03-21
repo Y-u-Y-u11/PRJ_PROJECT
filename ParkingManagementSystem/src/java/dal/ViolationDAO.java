@@ -87,11 +87,38 @@ public class ViolationDAO extends DBContext {
         return false;
     }
 
+    // THÊM MỚI: Cập nhật toàn bộ thông tin cho phép sửa
+    public boolean update(Violation v) {
+        String sql = "UPDATE Violation SET reason = ?, fine = ?, status = ? WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, v.getReason());
+            ps.setBigDecimal(2, v.getFine());
+            ps.setString(3, v.getStatus());
+            ps.setInt(4, v.getId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public boolean updateStatus(int id, String status) {
         String sql = "UPDATE Violation SET status = ? WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, status);
             ps.setInt(2, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // THÊM MỚI: Xóa vi phạm
+    public boolean delete(int id) {
+        String sql = "DELETE FROM Violation WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

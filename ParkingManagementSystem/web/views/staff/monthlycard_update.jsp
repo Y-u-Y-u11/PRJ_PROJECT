@@ -11,7 +11,7 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <form action="${pageContext.request.contextPath}/staff/monthlycard" method="POST">
-                <!-- Action và ID của thẻ cần update -->
+                <!-- Sửa action thành edit và thêm cardID ẩn -->
                 <input type="hidden" name="action" value="edit">
                 <input type="hidden" name="cardID" value="${card.cardID}">
 
@@ -25,8 +25,7 @@
                     <div class="d-flex gap-4 mt-2">
                         <c:forEach var="vt" items="${vehicleTypes}">
                             <div class="form-check">
-                                <!-- Đánh dấu checked cho loại xe cũ của thẻ -->
-                                <input class="form-check-input" type="radio" name="vehicleTypeID" id="vt_${vt.id}" value="${vt.id}" ${card.vehicleTypeID == vt.id ? 'checked' : ''} required>
+                                <input class="form-check-input" type="radio" name="vehicleTypeID" id="vt_${vt.id}" value="${vt.id}" ${vt.id == card.vehicleTypeID ? 'checked' : ''} required>
                                 <label class="form-check-label" for="vt_${vt.id}">
                                     ${vt.name}
                                 </label>
@@ -41,33 +40,26 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label class="form-label fw-bold">Ngày bắt đầu</label>
                         <input type="date" class="form-control" name="startDate" value="${card.startDate}" required>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label class="form-label fw-bold">Ngày kết thúc</label>
                         <input type="date" class="form-control" name="endDate" value="${card.endDate}" required>
                     </div>
-                </div>
-
-                <div class="mb-3">
-                    <small class="text-danger d-block">
-                        * Giá tiền sẽ được hệ thống tự động tính lại dựa trên khoảng thời gian mới và loại xe đã chọn.
-                    </small>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Trạng thái</label>
-                    <select class="form-select" name="status" required>
-                        <option value="Active" ${card.status == 'Active' ? 'selected' : ''}>Hoạt động (Active)</option>
-                        <option value="Expired" ${card.status == 'Expired' ? 'selected' : ''}>Hết hạn (Expired)</option>
-                        <option value="Cancelled" ${card.status == 'Cancelled' ? 'selected' : ''}>Đã hủy (Cancelled)</option>
-                    </select>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Trạng thái thẻ</label>
+                        <select name="status" class="form-select" required>
+                            <option value="Active" ${card.status == 'Active' ? 'selected' : ''}>Hoạt động (Active)</option>
+                            <option value="Expired" ${card.status == 'Expired' ? 'selected' : ''}>Hết hạn (Expired)</option>
+                            <option value="Cancelled" ${card.status == 'Cancelled' ? 'selected' : ''}>Đã hủy (Cancelled)</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="mt-4 border-top pt-3">
-                    <button type="submit" class="btn btn-warning px-4 py-2">Lưu Thay đổi</button>
+                    <button type="submit" class="btn btn-warning px-4 py-2">Lưu Cập nhật</button>
                     <a href="${pageContext.request.contextPath}/staff/monthlycard" class="btn btn-light px-4 py-2 ms-2">Hủy</a>
                 </div>
             </form>

@@ -5,7 +5,6 @@
 USE master;
 GO
 
--- Xóa database nếu đang tồn tại để làm mới hoàn toàn
 IF EXISTS (SELECT name FROM sys.databases WHERE name = N'Parking')
 BEGIN
     ALTER DATABASE Parking SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
@@ -32,7 +31,7 @@ CREATE TABLE Users (
 );
 
 -- =========================
--- 4. CUSTOMER
+-- 2. CUSTOMER
 -- =========================
 CREATE TABLE Customer (
     id INT IDENTITY PRIMARY KEY,
@@ -41,7 +40,7 @@ CREATE TABLE Customer (
 );
 
 -- =========================
--- 5. VEHICLE TYPE
+-- 3. VEHICLE TYPE
 -- =========================
 CREATE TABLE VehicleType (
     id INT IDENTITY PRIMARY KEY,
@@ -51,10 +50,10 @@ CREATE TABLE VehicleType (
 );
 
 -- =========================
--- 6. MONTHLY CARD
+-- 4. MONTHLY CARD
 -- =========================
 CREATE TABLE MonthlyCard (
-    cardID INT IDENTITY(1,1) PRIMARY KEY,
+    cardID INT IDENTITY PRIMARY KEY,
     customerID INT NOT NULL,
     vehicleTypeID INT NOT NULL,
     plateNumber VARCHAR(20) NOT NULL,
@@ -62,14 +61,14 @@ CREATE TABLE MonthlyCard (
     endDate DATE NOT NULL,
     price DECIMAL(10,2),
     status VARCHAR(20) DEFAULT 'Active' 
-        CHECK (status IN ('Active', 'Expired', 'Cancelled')),
+        CHECK (status IN ('Active','Expired','Cancelled')),
     FOREIGN KEY (customerID) REFERENCES Customer(id),
     FOREIGN KEY (vehicleTypeID) REFERENCES VehicleType(id),
     CONSTRAINT CHK_CardDates CHECK (endDate >= startDate)
 );
 
 -- =========================
--- 7. PARKING SLOT
+-- 5. PARKING SLOT
 -- =========================
 CREATE TABLE ParkingSlot (
     id INT IDENTITY PRIMARY KEY,
@@ -77,21 +76,21 @@ CREATE TABLE ParkingSlot (
 );
 
 -- =========================
--- 8. PARKING TICKET
+-- 6. PARKING TICKET
 -- =========================
 CREATE TABLE ParkingTicket (
     id INT IDENTITY PRIMARY KEY,
     ticketCode VARCHAR(50) UNIQUE NOT NULL,
-    plateNumber VARCHAR(20) NULL,
+    plateNumber VARCHAR(20),
     typeID INT NOT NULL,
-    slotID INT NULL,
-    customerID INT NULL,
-    monthlyCardID INT NULL, 
+    slotID INT,
+    customerID INT,
+    monthlyCardID INT,
     checkInTime DATETIME2 DEFAULT SYSDATETIME(),
-    checkOutTime DATETIME2 NULL,
+    checkOutTime DATETIME2,
     checkInStaffID INT,
-    checkOutStaffID INT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'Parking'
+    checkOutStaffID INT,
+    status VARCHAR(20) DEFAULT 'Parking'
         CHECK (status IN ('Parking','Completed','Lost_Ticket','Voided')),
     FOREIGN KEY (typeID) REFERENCES VehicleType(id),
     FOREIGN KEY (slotID) REFERENCES ParkingSlot(id),
@@ -102,11 +101,11 @@ CREATE TABLE ParkingTicket (
 );
 
 -- =========================
--- 9. PAYMENT TRANSACTION
+-- 7. PAYMENT TRANSACTION (✔️ FIX)
 -- =========================
 CREATE TABLE PaymentTransaction (
     id INT IDENTITY PRIMARY KEY,
-    ticketID INT NOT NULL,
+    ticketID INT NULL, -- ✔️ cho phép NULL
     amount DECIMAL(10,2) NOT NULL,
     method VARCHAR(10) CHECK (method IN ('Cash','QR','Card')),
     status VARCHAR(10) NOT NULL CHECK (status IN ('Success','Failed','Reversed')),
@@ -116,12 +115,12 @@ CREATE TABLE PaymentTransaction (
 );
 
 -- =========================
--- 10. VIOLATION
+-- 8. VIOLATION
 -- =========================
 CREATE TABLE Violation (
     id INT IDENTITY PRIMARY KEY,
-    ticketID INT NULL,
-    customerID INT NULL,
+    ticketID INT,
+    customerID INT,
     reason NVARCHAR(200),
     fine DECIMAL(10,2) NOT NULL,
     status VARCHAR(10) DEFAULT 'Unpaid'
@@ -134,7 +133,7 @@ CREATE TABLE Violation (
 );
 
 -- =========================
--- 11. AUDIT LOG
+-- 9. AUDIT LOG
 -- =========================
 CREATE TABLE AuditLog (
     id INT IDENTITY PRIMARY KEY,
@@ -152,7 +151,7 @@ CREATE TABLE AuditLog (
 );
 
 -- ======================================================
--- DATA INSERTION
+-- SAMPLE DATA
 -- ======================================================
 
 -- 1. Users
