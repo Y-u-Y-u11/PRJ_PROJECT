@@ -1,49 +1,35 @@
 package model;
 
-/**
- * Represents the MonthlyCard entity.
- */
 public class MonthlyCard {
 
     private int cardID;
-    private String customerID;
-    private String vehicleID;
+    private int customerID; // Đổi thành int theo DB
+    private int vehicleTypeID; // Thêm mới
+    private String plateNumber;
     private String startDate;
     private String endDate;
+    private double price; // Thêm mới
     private String status;
 
-    // Thuộc tính bổ sung để hiển thị
+    // Thuộc tính bổ sung để hiển thị (Join từ bảng khác)
     private String customerName;
-    private String plateNumber;
+    private String vehicleTypeName;
 
     public MonthlyCard() {
     }
 
-    // Constructor đầy đủ (cũ)
-    public MonthlyCard(int cardID, String customerID, String vehicleID,
-                       String startDate, String endDate, String status) {
+    public MonthlyCard(int cardID, int customerID, int vehicleTypeID, String plateNumber, String startDate, String endDate, double price, String status) {
         this.cardID = cardID;
         this.customerID = customerID;
-        this.vehicleID = vehicleID;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.status = status;
-    }
-
-    // Constructor mở rộng (có thêm 2 field mới)
-    public MonthlyCard(int cardID, String customerID, String vehicleID,
-                       String startDate, String endDate, String status,
-                       String customerName, String plateNumber) {
-        this.cardID = cardID;
-        this.customerID = customerID;
-        this.vehicleID = vehicleID;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.status = status;
-        this.customerName = customerName;
+        this.vehicleTypeID = vehicleTypeID;
         this.plateNumber = plateNumber;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.price = price;
+        this.status = status;
     }
 
+    // Getters and Setters
     public int getCardID() {
         return cardID;
     }
@@ -52,20 +38,28 @@ public class MonthlyCard {
         this.cardID = cardID;
     }
 
-    public String getCustomerID() {
+    public int getCustomerID() {
         return customerID;
     }
 
-    public void setCustomerID(String customerID) {
+    public void setCustomerID(int customerID) {
         this.customerID = customerID;
     }
 
-    public String getVehicleID() {
-        return vehicleID;
+    public int getVehicleTypeID() {
+        return vehicleTypeID;
     }
 
-    public void setVehicleID(String vehicleID) {
-        this.vehicleID = vehicleID;
+    public void setVehicleTypeID(int vehicleTypeID) {
+        this.vehicleTypeID = vehicleTypeID;
+    }
+
+    public String getPlateNumber() {
+        return plateNumber;
+    }
+
+    public void setPlateNumber(String plateNumber) {
+        this.plateNumber = plateNumber;
     }
 
     public String getStartDate() {
@@ -84,6 +78,14 @@ public class MonthlyCard {
         this.endDate = endDate;
     }
 
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -100,25 +102,11 @@ public class MonthlyCard {
         this.customerName = customerName;
     }
 
-    public String getPlateNumber() {
-        return plateNumber;
+    public String getVehicleTypeName() {
+        return vehicleTypeName;
     }
 
-    public void setPlateNumber(String plateNumber) {
-        this.plateNumber = plateNumber;
-    }
-
-    @Override
-    public String toString() {
-        return "MonthlyCard{"
-                + "cardID=" + cardID + ", "
-                + "customerID='" + customerID + "', "
-                + "vehicleID='" + vehicleID + "', "
-                + "startDate='" + startDate + "', "
-                + "endDate='" + endDate + "', "
-                + "status='" + status + "', "
-                + "customerName='" + customerName + "', "
-                + "plateNumber='" + plateNumber + "'"
-                + "}";
+    public void setVehicleTypeName(String vehicleTypeName) {
+        this.vehicleTypeName = vehicleTypeName;
     }
 }
