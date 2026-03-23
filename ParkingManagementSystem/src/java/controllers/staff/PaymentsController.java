@@ -48,9 +48,23 @@ public class PaymentsController extends HttpServlet {
                 request.setAttribute("vehicleType", vt);
                 request.setAttribute("calculatedFee", fee);
                 
-                request.getRequestDispatcher("/views/staff/payments_process.jsp").forward(request, response);
+                if (fee.compareTo(BigDecimal.ZERO) == 0) {
+                    PaymentTransaction pt = new PaymentTransaction(0, ticketId, BigDecimal.ZERO, "None/Auto", "Success", "AUTO-" + System.currentTimeMillis(), null);
+                    PaymentTransactionDAO ptDao = new PaymentTransactionDAO();
+                    ptDao.create(pt);
+                    
+                    ticket.setStatus("Completed");
+                    ticket.setCheckOutTime(java.sql.Timestamp.valueOf(LocalDateTime.now()));
+                    model.Users currentUser = (model.Users) request.getSession().getAttribute("LOGIN_USER");
+                    ticket.setCheckOutStaffID(currentUser != null ? currentUser.getId() : (Integer) 2);
+                    tDao.update(ticket);
+                    
+                    response.sendRedirect(request.getContextPath() + "/staff/dashboard?msg=checkout_success");
+                } else {
+                    request.getRequestDispatcher("/views/staff/payments_process.jsp").forward(request, response);
+                }
             } else {
-                response.sendRedirect(request.getContextPath() + "/staff/tickets/search?error=invalid_ticket");
+                response.sendRedirect(request.getContextPath() + "/staff/dashboard?msg=error_invalid_ticket");
             }
         }
     }

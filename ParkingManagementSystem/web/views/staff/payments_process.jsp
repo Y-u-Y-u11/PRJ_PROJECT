@@ -38,9 +38,9 @@
                     
                     <div class="mb-3">
                         <label class="form-label">Phương thức Thanh toán</label>
-                        <select name="method" class="form-select" required>
+                        <select name="method" id="paymentMethod" class="form-select" required>
                             <option value="Cash">Tiền mặt (Cash)</option>
-                            <option value="Bank_Transfer">Chuyển khoản / QR Code</option>
+                            <option value="QR">Chuyển khoản / QR Code</option>
                             <option value="Card">Thẻ / Card</option>
                         </select>
                     </div>

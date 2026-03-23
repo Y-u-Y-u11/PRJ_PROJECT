@@ -1,20 +1,15 @@
-package controllers.staff;
+package controllers.manager;
 
-import dal.CustomerDAO;
 import dal.ParkingTicketDAO;
 import dal.PaymentTransactionDAO;
-import dal.ViolationDAO;
 import java.io.IOException;
-import java.math.BigDecimal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
-import model.Customer;
 import model.ParkingTicket;
 import model.PaymentTransaction;
-import model.Violation;
 
 public class TicketsController extends HttpServlet {
     @Override

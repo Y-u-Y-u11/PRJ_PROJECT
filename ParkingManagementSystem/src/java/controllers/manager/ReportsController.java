@@ -22,8 +22,6 @@ public class ReportsController extends HttpServlet {
         } else if ("/manager/reports/revenue".equals(action)) {
             ReportDAO reportDAO = new ReportDAO();
             BigDecimal totalRevenue = reportDAO.calculateTotalRevenue();
-            
-            // Optional: Save this generated report snapshot
             reportDAO.saveReport(new Report(0, "REVENUE", null, totalRevenue, null, null));
             
             request.setAttribute("totalRevenue", totalRevenue);

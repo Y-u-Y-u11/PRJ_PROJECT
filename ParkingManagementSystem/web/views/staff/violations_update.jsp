@@ -57,7 +57,7 @@
                         </label>
                         <select name="paymentMethod" class="form-select border-success">
                             <option value="Cash">Tiền mặt (Cash)</option>
-                            <option value="Bank_Transfer">Chuyển khoản / QR Code</option>
+                            <option value="QR">Chuyển khoản / QR Code</option>
                             <option value="Card">Thẻ / Card</option>
                         </select>
                     </div>

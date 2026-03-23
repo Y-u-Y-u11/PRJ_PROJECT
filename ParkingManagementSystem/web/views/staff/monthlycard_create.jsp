@@ -51,6 +51,15 @@
                     </div>
                 </div>
 
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Phương thức Thanh toán</label>
+                    <select name="paymentMethod" class="form-select" required>
+                        <option value="Cash">Tiền mặt (Cash)</option>
+                        <option value="QR">Chuyển khoản / QR Code</option>
+                        <option value="Card">Thẻ / Card</option>
+                    </select>
+                </div>
+
                 <div class="mt-4 border-top pt-3">
                     <button type="submit" class="btn btn-success px-4 py-2">Xác nhận Đăng ký</button>
                     <button type="reset" class="btn btn-light px-4 py-2 ms-2">Làm mới</button>

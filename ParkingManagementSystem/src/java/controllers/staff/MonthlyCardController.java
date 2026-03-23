@@ -117,7 +117,6 @@ public class MonthlyCardController extends HttpServlet {
                 String paymentMethod = request.getParameter("paymentMethod"); 
                 if (paymentMethod == null || paymentMethod.isEmpty()) paymentMethod = "Cash";
                 
-                // Check vehicle type pricing before registration
                 VehicleType vt = vtDao.getById(vehicleTypeID);
                 if (vt == null) {
                     session.setAttribute("error", "Lỗi: Không tìm thấy loại xe hợp lệ trong hệ thống.");
@@ -130,7 +129,7 @@ public class MonthlyCardController extends HttpServlet {
                     return;
                 }
                 
-                double calculatedPrice = vt.getCurrentPrice().doubleValue() * 20 * months;
+                BigDecimal calculatedPrice = vt.getCurrentPrice().multiply(BigDecimal.valueOf(20)).multiply(BigDecimal.valueOf(months));
                 
                 newCard.setCustomerID(parseIntSafe(request.getParameter("customerID"), 0));
                 newCard.setVehicleTypeID(vehicleTypeID);
@@ -149,13 +148,12 @@ public class MonthlyCardController extends HttpServlet {
                 newCard.setEndDate(endDateStr);
                 newCard.setStatus("Active");
 
-                // Verify DB persistence before processing payment
                 boolean isCreated = dao.createMonthlyCard(newCard);
                 
                 if (isCreated) {
                     PaymentTransaction pt = new PaymentTransaction(
                             0, null, 
-                            BigDecimal.valueOf(calculatedPrice), 
+                            calculatedPrice, 
                             paymentMethod, "Success", 
                             "MCARD-" + System.currentTimeMillis(), null
                     );
@@ -193,7 +191,7 @@ public class MonthlyCardController extends HttpServlet {
                     return;
                 }
                 
-                double calculatedPrice = vt.getCurrentPrice().doubleValue() * 20 * months;
+                BigDecimal calculatedPrice = vt.getCurrentPrice().multiply(BigDecimal.valueOf(20)).multiply(BigDecimal.valueOf(months));
 
                 card.setCardID(parseIntSafe(request.getParameter("cardID"), 0));
                 card.setCustomerID(parseIntSafe(request.getParameter("customerID"), 0));

@@ -14,9 +14,9 @@ public class MonthlyCardDAO extends DBContext {
             stm.setString(3, o.getPlateNumber());
             stm.setString(4, o.getStartDate());
             stm.setString(5, o.getEndDate());
-            stm.setDouble(6, o.getPrice());
+            stm.setBigDecimal(6, o.getPrice());
             stm.setString(7, o.getStatus());
-            return stm.executeUpdate() > 0; // Trả về true nếu Insert thành công
+            return stm.executeUpdate() > 0;
         } catch (SQLException e) {
             System.out.println("Error Insert: " + e.getMessage());
             return false;
@@ -80,7 +80,7 @@ public class MonthlyCardDAO extends DBContext {
                     o.setPlateNumber(rs.getString("plateNumber"));
                     o.setStartDate(rs.getString("startDate"));
                     o.setEndDate(rs.getString("endDate"));
-                    o.setPrice(rs.getDouble("price"));
+                    o.setPrice(rs.getBigDecimal("price"));
                     o.setStatus(rs.getString("status"));
                     result.add(o);
                 }
@@ -99,7 +99,7 @@ public class MonthlyCardDAO extends DBContext {
             stm.setString(3, o.getPlateNumber());
             stm.setString(4, o.getStartDate());
             stm.setString(5, o.getEndDate());
-            stm.setDouble(6, o.getPrice());
+            stm.setBigDecimal(6, o.getPrice());
             stm.setString(7, o.getStatus());
             stm.setInt(8, o.getCardID());
             return stm.executeUpdate() > 0;
@@ -126,7 +126,7 @@ public class MonthlyCardDAO extends DBContext {
                     o.setPlateNumber(rs.getString("plateNumber"));
                     o.setStartDate(rs.getString("startDate"));
                     o.setEndDate(rs.getString("endDate"));
-                    o.setPrice(rs.getDouble("price"));
+                    o.setPrice(rs.getBigDecimal("price"));
                     o.setStatus(rs.getString("status"));
                     return o;
                 }
@@ -151,7 +151,7 @@ public class MonthlyCardDAO extends DBContext {
                     o.setPlateNumber(rs.getString("plateNumber"));
                     o.setStartDate(rs.getString("startDate"));
                     o.setEndDate(rs.getString("endDate"));
-                    o.setPrice(rs.getDouble("price"));
+                    o.setPrice(rs.getBigDecimal("price"));
                     o.setStatus(rs.getString("status"));
                     return o;
                 }

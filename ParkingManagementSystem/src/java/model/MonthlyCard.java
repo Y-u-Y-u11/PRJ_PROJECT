@@ -1,5 +1,7 @@
 package model;
 
+import java.math.BigDecimal;
+
 public class MonthlyCard {
 
     private int cardID;
@@ -8,7 +10,7 @@ public class MonthlyCard {
     private String plateNumber;
     private String startDate;
     private String endDate;
-    private double price; // Thêm mới
+    private BigDecimal price;
     private String status;
 
     // Thuộc tính bổ sung để hiển thị (Join từ bảng khác)
@@ -18,7 +20,7 @@ public class MonthlyCard {
     public MonthlyCard() {
     }
 
-    public MonthlyCard(int cardID, int customerID, int vehicleTypeID, String plateNumber, String startDate, String endDate, double price, String status) {
+    public MonthlyCard(int cardID, int customerID, int vehicleTypeID, String plateNumber, String startDate, String endDate, BigDecimal price, String status) {
         this.cardID = cardID;
         this.customerID = customerID;
         this.vehicleTypeID = vehicleTypeID;
@@ -78,11 +80,11 @@ public class MonthlyCard {
         this.endDate = endDate;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
