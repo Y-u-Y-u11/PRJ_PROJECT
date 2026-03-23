@@ -29,7 +29,7 @@
             <div class="card-body">
                 <h5 class="card-title">Tìm kiếm Xe</h5>
                 <p>Tra cứu tình trạng vé qua biển số.</p>
-                <a href="${pageContext.request.contextPath}/staff/tickets/search" class="btn btn-light">Đi đến Tìm kiếm</a>
+                <a href="${pageContext.request.contextPath}/staff/tickets" class="btn btn-light">Đi đến Tìm kiếm</a>
             </div>
         </div>
     </div>
