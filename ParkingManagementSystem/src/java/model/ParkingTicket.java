@@ -13,17 +13,19 @@ public class ParkingTicket {
     private Timestamp checkOutTime; // Nullable
     private int checkInStaffID;
     private Integer checkOutStaffID; // Nullable
+    private Integer monthlyCardID;   // Associated monthly subscription card
     private String status;
 
     public ParkingTicket() {}
 
-    public ParkingTicket(int id, String ticketCode, String plateNumber, int typeID, Integer slotID, Integer customerID, Timestamp checkInTime, Timestamp checkOutTime, int checkInStaffID, Integer checkOutStaffID, String status) {
+    public ParkingTicket(int id, String ticketCode, String plateNumber, int typeID, Integer slotID, Integer customerID, Integer monthlyCardID, Timestamp checkInTime, Timestamp checkOutTime, int checkInStaffID, Integer checkOutStaffID, String status) {
         this.id = id;
         this.ticketCode = ticketCode;
         this.plateNumber = plateNumber;
         this.typeID = typeID;
         this.slotID = slotID;
         this.customerID = customerID;
+        this.monthlyCardID = monthlyCardID;
         this.checkInTime = checkInTime;
         this.checkOutTime = checkOutTime;
         this.checkInStaffID = checkInStaffID;
@@ -48,6 +50,9 @@ public class ParkingTicket {
     
     public Integer getCustomerID() { return customerID; }
     public void setCustomerID(Integer customerID) { this.customerID = customerID; }
+    
+    public Integer getMonthlyCardID() { return monthlyCardID; }
+    public void setMonthlyCardID(Integer monthlyCardID) { this.monthlyCardID = monthlyCardID; }
     
     public Timestamp getCheckInTime() { return checkInTime; }
     public void setCheckInTime(Timestamp checkInTime) { this.checkInTime = checkInTime; }

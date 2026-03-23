@@ -90,8 +90,8 @@ public class ParkingTicketDAO extends DBContext {
     }
 
     public ParkingTicket create(ParkingTicket ticket) {
-        String sql = "INSERT INTO ParkingTicket (ticketCode, plateNumber, typeID, slotID, customerID, checkInStaffID, status) "
-                   + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ParkingTicket (ticketCode, plateNumber, typeID, slotID, customerID, monthlyCardID, checkInStaffID, status) "
+                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, ticket.getTicketCode());
             ps.setString(2, ticket.getPlateNumber());
@@ -103,8 +103,11 @@ public class ParkingTicketDAO extends DBContext {
             if (ticket.getCustomerID() != null) ps.setInt(5, ticket.getCustomerID());
             else ps.setNull(5, java.sql.Types.INTEGER);
             
-            ps.setInt(6, ticket.getCheckInStaffID());
-            ps.setString(7, ticket.getStatus());
+            if (ticket.getMonthlyCardID() != null) ps.setInt(6, ticket.getMonthlyCardID());
+            else ps.setNull(6, java.sql.Types.INTEGER);
+            
+            ps.setInt(7, ticket.getCheckInStaffID());
+            ps.setString(8, ticket.getStatus());
             
             if (ps.executeUpdate() > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -155,6 +158,10 @@ public class ParkingTicketDAO extends DBContext {
         int customerID = rs.getInt("customerID");
         if (!rs.wasNull()) t.setCustomerID(customerID);
         
+        int monthlyCardID = rs.getInt("monthlyCardID");
+        if (!rs.wasNull()) t.setMonthlyCardID(monthlyCardID);
+        
+        // Map remaining standard ticket fields
         t.setCheckInTime(rs.getTimestamp("checkInTime"));
         t.setCheckOutTime(rs.getTimestamp("checkOutTime"));
         t.setCheckInStaffID(rs.getInt("checkInStaffID"));

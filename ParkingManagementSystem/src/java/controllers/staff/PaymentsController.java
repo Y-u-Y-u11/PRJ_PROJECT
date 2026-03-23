@@ -31,15 +31,21 @@ public class PaymentsController extends HttpServlet {
             if (ticket != null && "Parking".equals(ticket.getStatus())) {
                 VehicleType vt = vDao.getById(ticket.getTypeID());
                 
-                LocalDateTime now = LocalDateTime.now();
-                long hours = Duration.between(ticket.getCheckInTime().toLocalDateTime(), now).toHours();
-                if (hours == 0) hours = 1; // Minimum 1 hour charge
-                
-                BigDecimal fee = vt.getCurrentPrice().multiply(BigDecimal.valueOf(hours));
+                BigDecimal fee = BigDecimal.ZERO;
+                if (ticket.getMonthlyCardID() == null) {
+                    // Standard billing for transient tickets
+                    LocalDateTime now = LocalDateTime.now();
+                    long hours = Duration.between(ticket.getCheckInTime().toLocalDateTime(), now).toHours();
+                    if (hours == 0) hours = 1; // Minimum charge is 1 hour
+                    fee = vt.getCurrentPrice().multiply(BigDecimal.valueOf(hours));
+                    request.setAttribute("hours", hours);
+                } else {
+                    // Subscription holders park for free
+                    request.setAttribute("isMonthly", true);
+                }
                 
                 request.setAttribute("ticket", ticket);
                 request.setAttribute("vehicleType", vt);
-                request.setAttribute("hours", hours);
                 request.setAttribute("calculatedFee", fee);
                 
                 request.getRequestDispatcher("/views/staff/payments_process.jsp").forward(request, response);

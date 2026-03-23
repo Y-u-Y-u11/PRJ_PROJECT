@@ -1,5 +1,6 @@
 package controllers.staff;
 
+import dal.MonthlyCardDAO;
 import dal.ParkingSlotDAO;
 import dal.ParkingTicketDAO;
 import dal.VehicleTypeDAO;
@@ -106,24 +107,77 @@ public class TicketsController extends HttpServlet {
         Users currentUser = (Users) request.getSession().getAttribute("LOGIN_USER");
 
         if ("/staff/tickets/checkin".equals(action)) {
-            String plateNumber = request.getParameter("plateNumber");
+            String mode = request.getParameter("checkInMode");
+            String isSubmit = request.getParameter("submitAction"); // From the submit button or hidden field
+            
+            // If it's just a mode change via radio button onchange="this.form.submit()"
+            if (!"save".equals(isSubmit)) {
+                request.setAttribute("checkInMode", mode);
+                doGet(request, response);
+                return;
+            }
 
-            if (plateNumber != null && !plateNumber.trim().isEmpty()) {
-                if (tDao.isPlateActive(plateNumber)) {
-                    request.setAttribute("error", "Lỗi: Biển số xe này đang trong bãi (Chưa Check-out).");
+            String plateNumber = request.getParameter("plateNumber");
+            int vehicleTypeId = 0;
+            Integer monthlyCardID = null;
+            Integer customerID = null;
+
+            // Generate unique ticket code
+            String ticketCode = "TK-" + System.currentTimeMillis();
+
+            MonthlyCardDAO mcDao = new MonthlyCardDAO();
+
+            if ("monthly".equals(mode)) {
+                String cardIdStr = request.getParameter("cardId");
+                if (cardIdStr == null || cardIdStr.trim().isEmpty()) {
+                    request.setAttribute("error", "Error: Please enter Monthly Card ID.");
                     doGet(request, response);
                     return;
                 }
+                int cardId = Integer.parseInt(cardIdStr);
+                // Validate against active monthly subscriptions
+                model.MonthlyCard card = mcDao.getById(cardId);
+                
+                if (card == null || !"Active".equals(card.getStatus())) {
+                    request.setAttribute("error", "Error: Monthly card not found or not active.");
+                    doGet(request, response);
+                    return;
+                }
+                
+                // Prevent double-entry even for monthly card holders
+                if (tDao.isPlateActive(card.getPlateNumber())) {
+                    request.setAttribute("error", "Error: Vehicle with plate " + card.getPlateNumber() + " is already in the lot.");
+                    doGet(request, response);
+                    return;
+                }
+
+                plateNumber = card.getPlateNumber();
+                vehicleTypeId = card.getVehicleTypeID();
+                monthlyCardID = card.getCardID();
+                customerID = card.getCustomerID();
+            } else {
+                // Standard Transient Ticket Mode
+                if (plateNumber != null && !plateNumber.trim().isEmpty()) {
+                    if (tDao.isPlateActive(plateNumber)) {
+                        request.setAttribute("error", "Error: This vehicle is already checked in.");
+                        doGet(request, response);
+                        return;
+                    }
+                }
+                vehicleTypeId = Integer.parseInt(request.getParameter("vehicleTypeId"));
+                
+                // Automatic detection of active monthly cards by plate number
+                model.MonthlyCard autoCard = mcDao.getActiveCardByPlate(plateNumber);
+                if (autoCard != null) {
+                    monthlyCardID = autoCard.getCardID();
+                    customerID = autoCard.getCustomerID();
+                    vehicleTypeId = autoCard.getVehicleTypeID(); 
+                }
             }
 
-            int vehicleTypeId = Integer.parseInt(request.getParameter("vehicleTypeId"));
-
-            // Xử lý cho slotId
+            // Handle parking slot assignment
             String slotIdStr = request.getParameter("slotId");
             Integer slotId = (slotIdStr != null && !slotIdStr.isEmpty()) ? Integer.parseInt(slotIdStr) : null;
-
-            // Generate ticket code: TK- + timestamp
-            String ticketCode = "TK-" + System.currentTimeMillis();
 
             ParkingTicket ticket = new ParkingTicket(
                     0,
@@ -131,15 +185,16 @@ public class TicketsController extends HttpServlet {
                     plateNumber,
                     vehicleTypeId,
                     slotId,
-                    null,
+                    customerID,
+                    monthlyCardID,
                     new java.sql.Timestamp(System.currentTimeMillis()),
                     null,
-                    currentUser != null ? currentUser.getId() : 2, // Mặc định là 2 nếu session null
+                    currentUser != null ? currentUser.getId() : 2, // Default staff ID fallback
                     null,
                     "Parking"
             );
 
-            // Gọi DAO tạo vé vào CSDL
+            // Persist the new ticket
             ParkingTicket createdTicket = tDao.create(ticket);
 
             if (createdTicket != null) {

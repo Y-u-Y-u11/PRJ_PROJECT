@@ -101,11 +101,11 @@ CREATE TABLE ParkingTicket (
 );
 
 -- =========================
--- 7. PAYMENT TRANSACTION (✔️ FIX)
+-- 7. PAYMENT TRANSACTION
 -- =========================
 CREATE TABLE PaymentTransaction (
     id INT IDENTITY PRIMARY KEY,
-    ticketID INT NULL, -- ✔️ cho phép NULL
+    ticketID INT,
     amount DECIMAL(10,2) NOT NULL,
     method VARCHAR(10) CHECK (method IN ('Cash','QR','Card')),
     status VARCHAR(10) NOT NULL CHECK (status IN ('Success','Failed','Reversed')),

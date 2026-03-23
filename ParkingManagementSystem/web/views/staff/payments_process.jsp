@@ -6,14 +6,21 @@
     <div class="col-md-6">
         <div class="card shadow border-success mb-4">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0">Thanh toán Check-out Vé: ${ticket.ticketCode}</h5>
+                <h5 class="mb-0">Check-out Payment: ${ticket.ticketCode}</h5>
             </div>
             <div class="card-body">
                 <table class="table table-borderless">
                     <tr><th>Biển số xe:</th><td>${ticket.plateNumber}</td></tr>
                     <tr><th>Loại xe:</th><td>${vehicleType.name} (${vehicleType.currentPrice} VNĐ/h)</td></tr>
                     <tr><th>Giờ vào:</th><td>${ticket.checkInTime}</td></tr>
-                    <tr><th>Thời gian đỗ:</th><td>${hours} giờ</td></tr>
+                    <c:choose>
+                        <c:when test="${isMonthly}">
+                            <tr><th>Trạng thái:</th><td><span class="badge bg-primary">Thẻ Tháng (Monthly Card)</span></td></tr>
+                        </c:when>
+                        <c:otherwise>
+                            <tr><th>Thời gian đỗ:</th><td>${hours} giờ</td></tr>
+                        </c:otherwise>
+                    </c:choose>
                 </table>
                 <hr>
                 <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded mb-3">

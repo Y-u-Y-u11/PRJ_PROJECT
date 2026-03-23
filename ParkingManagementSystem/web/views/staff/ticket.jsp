@@ -5,17 +5,17 @@
 
 <div class="row w-100 justify-content-center">
     <div class="col-md-5">
-        <!-- Khung tờ vé -->
+        <!-- Ticket Design Container -->
         <div class="card shadow border-dark" style="border-style: dashed !important; border-width: 2px !important;">
             <div class="card-header bg-white text-center border-bottom-0 pt-4">
-                <h3 class="fw-bold mb-0">VÉ GỬI XE</h3>
-                <p class="text-muted small">Bãi đỗ xe thông minh ParkingSystem</p>
+                <h3 class="fw-bold mb-0">PARKING TICKET</h3>
+                <p class="text-muted small">Smart Parking Management System</p>
             </div>
             <div class="card-body px-5">
                 
                 <div class="text-center mb-4">
-                    <!-- Hiển thị Mã vé to, rõ ràng dạng Monospace -->
-                    <span class="d-block text-muted mb-1">Mã thẻ / Ticket Code</span>
+                    <!-- Display prominent Ticket Code -->
+                    <span class="d-block text-muted mb-1">Ticket Code</span>
                     <h2 class="fw-bold text-success" style="font-family: monospace;">${ticket.ticketCode}</h2>
                 </div>
 
@@ -34,6 +34,12 @@
                             <td class="text-muted">Loại xe:</td>
                             <td class="text-end fw-bold">${vehicleType.name}</td>
                         </tr>
+                        <c:if test="${not empty ticket.monthlyCardID}">
+                        <tr>
+                            <td class="text-muted">Hình thức:</td>
+                            <td class="text-end fw-bold text-primary">VÉ THÁNG (#${ticket.monthlyCardID})</td>
+                        </tr>
+                        </c:if>
                         <tr>
                             <td class="text-muted border-bottom pb-2">Vị trí đỗ (Slot):</td>
                             <td class="text-end fw-bold border-bottom pb-2">
@@ -48,12 +54,14 @@
                                 <fmt:formatDate value="${ticket.checkInTime != null ? ticket.checkInTime : now}" pattern="dd/MM/yyyy HH:mm:ss" />
                             </td>
                         </tr>
+                        <c:if test="${empty ticket.monthlyCardID}">
                         <tr>
                             <td class="text-muted">Đơn giá cơ bản:</td>
                             <td class="text-end fw-bold text-danger">
                                 <fmt:formatNumber value="${vehicleType.currentPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>/lượt
                             </td>
                         </tr>
+                        </c:if>
                     </tbody>
                 </table>
 

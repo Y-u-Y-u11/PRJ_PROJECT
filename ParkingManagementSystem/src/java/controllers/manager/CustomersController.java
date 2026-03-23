@@ -16,6 +16,7 @@ import model.AuditLog;
 import model.Users;
 
 public class CustomersController extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -45,7 +46,7 @@ public class CustomersController extends HttpServlet {
             int id = Integer.parseInt(request.getParameter("id"));
             Customer c = dao.getById(id);
             List<Violation> violations = vDao.getByCustomerOrTicket(id, null);
-            
+
             request.setAttribute("customer", c);
             request.setAttribute("violations", violations);
             request.getRequestDispatcher("/views/manager/customers_view.jsp").forward(request, response);
@@ -55,22 +56,22 @@ public class CustomersController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-            
+
         String action = request.getServletPath();
         if ("/manager/customers/create".equals(action)) {
             String name = request.getParameter("name");
             String phone = request.getParameter("phone");
-            
+
             if (name == null || name.trim().isEmpty() || phone == null || phone.trim().isEmpty()) {
                 request.setAttribute("error", "Vui lòng nhập đầy đủ thông tin.");
                 request.getRequestDispatcher("/views/common/customer_add.jsp").forward(request, response);
                 return;
             }
-            
+
             CustomerDAO dao = new CustomerDAO();
             Customer c = new Customer(0, name, phone);
             boolean success = dao.create(c);
-            
+
             if (success) {
                 response.sendRedirect(request.getContextPath() + "/manager/customers?success=created");
             } else {
@@ -81,7 +82,7 @@ public class CustomersController extends HttpServlet {
             int id = Integer.parseInt(request.getParameter("id"));
             String name = request.getParameter("name");
             String phone = request.getParameter("phone");
-            
+
             CustomerDAO dao = new CustomerDAO();
             Customer c = new Customer(id, name, phone);
             if (dao.update(c)) {
@@ -96,7 +97,7 @@ public class CustomersController extends HttpServlet {
             CustomerDAO dao = new CustomerDAO();
             AuditLogDAO auditDao = new AuditLogDAO();
             Users currentUser = (Users) request.getSession().getAttribute("LOGIN_USER");
-            
+
             Customer c = dao.getById(id);
             if (dao.delete(id)) {
                 auditDao.create(new AuditLog(0, currentUser.getId(), "DELETE", "Customer", id, null, null, c.getName(), "Xóa khách hàng", null));
